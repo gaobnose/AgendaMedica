@@ -1,5 +1,56 @@
 import re
 from datetime import datetime
+import pyodbc
+from dotenv import load_dotenv
+import os
+
+class ConexionBD:
+    def __init__(self):
+        load_dotenv()
+        self.servidor = os.getenv("DB_SERVER")
+        self.base_datos = os.getenv("DB_NAME")
+        self.usuario = os.getenv("DB_USER")
+        self.contrasena = os.getenv("DB_PASSWORD")
+        self.conexion = None
+
+    def conectar(self):
+        try:
+            self.conexion = pyodbc.connect(
+                f'DRIVER={{ODBC Driver 17 for SQL Server}};'
+                f'SERVER={self.servidor};'
+                f'DATABASE={self.base_datos};'
+                f'UID={self.usuario};'
+                f'PWD={self.contrasena}'
+            )
+            print("Conexión exitosa a SQL Server.")
+        except Exception as e:
+            print("Error al conectar a la base de datos:", e)
+
+    def cerrar_conexion(self):
+        if self.conexion:
+            self.conexion.close()
+            print("Conexión cerrada.")
+
+    def ejecutar_consulta(self, consulta, parametros=()):
+        try:
+            cursor = self.conexion.cursor()
+            cursor.execute(consulta, parametros)
+            return cursor.fetchall()
+        except Exception as e:
+            print("Error al ejecutar la consulta:", e)
+            return []
+
+    def ejecutar_instruccion(self, consulta, parametros=()):
+        try:
+            cursor = self.conexion.cursor()
+            cursor.execute(consulta, parametros)
+            self.conexion.commit()
+            print("Instrucción ejecutada correctamente.")
+        except Exception as e:
+            print("Error al ejecutar la instrucción:", e)
+            self.conexion.rollback()
+
+
 
 class Paciente:
     def __init__(self, id, nombre, fecha_nac, telefono):
@@ -101,13 +152,14 @@ class AgendaMedica:
         for atencion in paciente.historial:
             print(f"- {atencion['fecha']}: Médico {atencion['medico']}, Motivo: {atencion['motivo']}, Notas: {atencion['notas']}")
 
-    def listar_pacientes(self):
-        if not self.pacientes:
+    def listar_pacientes(self, pacientes):
+        
+        if not pacientes:
             print("No hay pacientes registrados.")
             return
         print("\n--- Lista de pacientes ---")
-        for p in self.pacientes.values():
-            print(f"ID {p.id}: {p.nombre}, Fecha de nacimiento: {p.fecha_nac}, Teléfono: {p.telefono}")
+        for p in pacientes:
+            print(f"ID {p[0]}: {p[1]}, Fecha de nacimiento: {p[2]}, Teléfono: {p[3]}")
 
     def listar_medicos(self):
         if not self.medicos:
@@ -132,31 +184,21 @@ def mostrar_menu():
 
 def main():
     agenda = AgendaMedica()
-
+    db = ConexionBD()
+    db.conectar()
     while True:
         mostrar_menu()
         opcion = input("Seleccione una opción: ")
 
         if opcion == '1':
             nombre = input("Nombre del paciente: ").strip()
-            if not validar_nombre(nombre):
-                continue
             fecha_nac = input("Fecha de nacimiento (YYYY-MM-DD): ").strip()
-            if not validar_fecha(fecha_nac):
-                continue
             telefono = input("Teléfono: ").strip()
-            if not validar_telefono(telefono):
-                continue
             agenda.registrar_paciente(nombre, fecha_nac, telefono)
 
         elif opcion == '2':
             nombre = input("Nombre del médico: ").strip()
-            if not validar_nombre(nombre):
-                continue
             especialidad = input("Especialidad: ").strip()
-            if not validar_nombre(especialidad):
-                print("Error: La especialidad solo debe contener letras y espacios.")
-                continue
             agenda.registrar_medico(nombre, especialidad)
 
         elif opcion == '3':
@@ -166,9 +208,6 @@ def main():
                 fecha_str = input("Fecha y hora de la cita (YYYY-MM-DD HH:MM): ").strip()
                 fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
                 motivo = input("Motivo de la consulta: ").strip()
-                if not motivo:
-                    print("Error: El motivo no puede estar vacío.")
-                    continue
                 agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
             except ValueError:
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
@@ -180,9 +219,6 @@ def main():
             try:
                 cita_id = int(input("ID de la cita a registrar como atendida: "))
                 notas = input("Notas de la atención: ").strip()
-                if not notas:
-                    print("Error: Las notas no pueden estar vacías.")
-                    continue
                 agenda.registrar_atencion(cita_id, notas)
             except ValueError:
                 print("ID inválido.")
@@ -195,7 +231,8 @@ def main():
                 print("ID inválido.")
 
         elif opcion == '7':
-            agenda.listar_pacientes()
+            pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
+            agenda.listar_pacientes(pacientes)
 
         elif opcion == '8':
             agenda.listar_medicos()
