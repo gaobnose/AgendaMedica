@@ -38,19 +38,34 @@
           <mxGeometry y="78" width="140" height="26" as="geometry" />
         </mxCell>
         <mxCell id="NCxvfVJp-R5Hk75AXR-E-13" value="Cita" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="79" y="380" width="140" height="130" as="geometry" />
+          <mxGeometry x="79" y="380" width="140" height="156" as="geometry" />
         </mxCell>
-        <mxCell id="NCxvfVJp-R5Hk75AXR-E-15" value="+ field: type" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-15" value="ID" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
           <mxGeometry y="26" width="140" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="NCxvfVJp-R5Hk75AXR-E-16" value="+ field: type" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-16" value="Paciente" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
           <mxGeometry y="52" width="140" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="NCxvfVJp-R5Hk75AXR-E-18" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-18" value="Medico" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
           <mxGeometry y="78" width="140" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="NCxvfVJp-R5Hk75AXR-E-17" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-17" value="fecha_hora" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
           <mxGeometry y="104" width="140" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-19" value="motivo" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-13">
+          <mxGeometry y="130" width="140" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-20" value="Agenda Medica" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=10;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" vertex="1" parent="1">
+          <mxGeometry x="307" y="198" width="140" height="88" as="geometry" />
+        </mxCell>
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-21" value="Registrar paciente" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-20">
+          <mxGeometry y="10" width="140" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-22" value="Registrar medico" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-20">
+          <mxGeometry y="36" width="140" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="NCxvfVJp-R5Hk75AXR-E-23" value="Agendar cita" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="NCxvfVJp-R5Hk75AXR-E-20">
+          <mxGeometry y="62" width="140" height="26" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
