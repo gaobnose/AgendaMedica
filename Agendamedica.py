@@ -116,3 +116,96 @@ class AgendaMedica:
         print("\n--- Lista de médicos ---")
         for m in self.medicos.values():
             print(f"ID {m.id}: {m.nombre}, Especialidad: {m.especialidad}")
+
+
+def mostrar_menu():
+    print("\n--- MENÚ PRINCIPAL ---")
+    print("1. Registrar paciente")
+    print("2. Registrar médico")
+    print("3. Agendar cita médica")
+    print("4. Listar próximas citas")
+    print("5. Registrar atención de cita")
+    print("6. Ver historial médico por paciente")
+    print("7. Listar pacientes")
+    print("8. Listar médicos")
+    print("9. Salir")
+
+def main():
+    agenda = AgendaMedica()
+
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == '1':
+            nombre = input("Nombre del paciente: ").strip()
+            if not validar_nombre(nombre):
+                continue
+            fecha_nac = input("Fecha de nacimiento (YYYY-MM-DD): ").strip()
+            if not validar_fecha(fecha_nac):
+                continue
+            telefono = input("Teléfono: ").strip()
+            if not validar_telefono(telefono):
+                continue
+            agenda.registrar_paciente(nombre, fecha_nac, telefono)
+
+        elif opcion == '2':
+            nombre = input("Nombre del médico: ").strip()
+            if not validar_nombre(nombre):
+                continue
+            especialidad = input("Especialidad: ").strip()
+            if not validar_nombre(especialidad):
+                print("Error: La especialidad solo debe contener letras y espacios.")
+                continue
+            agenda.registrar_medico(nombre, especialidad)
+
+        elif opcion == '3':
+            try:
+                paciente_id = int(input("ID del paciente: "))
+                medico_id = int(input("ID del médico: "))
+                fecha_str = input("Fecha y hora de la cita (YYYY-MM-DD HH:MM): ").strip()
+                fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
+                motivo = input("Motivo de la consulta: ").strip()
+                if not motivo:
+                    print("Error: El motivo no puede estar vacío.")
+                    continue
+                agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
+            except ValueError:
+                print("Error: Formato de fecha/hora inválido o ID no numérico.")
+
+        elif opcion == '4':
+            agenda.listar_proximas_citas()
+
+        elif opcion == '5':
+            try:
+                cita_id = int(input("ID de la cita a registrar como atendida: "))
+                notas = input("Notas de la atención: ").strip()
+                if not notas:
+                    print("Error: Las notas no pueden estar vacías.")
+                    continue
+                agenda.registrar_atencion(cita_id, notas)
+            except ValueError:
+                print("ID inválido.")
+
+        elif opcion == '6':
+            try:
+                paciente_id = int(input("ID del paciente para ver historial: "))
+                agenda.historial_paciente(paciente_id)
+            except ValueError:
+                print("ID inválido.")
+
+        elif opcion == '7':
+            agenda.listar_pacientes()
+
+        elif opcion == '8':
+            agenda.listar_medicos()
+
+        elif opcion == '9':
+            print("Saliendo del sistema. ¡Hasta luego!")
+            break
+
+        else:
+            print("Opción no válida, intente de nuevo.")
+
+if __name__ == "__main__":
+    main()
