@@ -161,13 +161,14 @@ class AgendaMedica:
         for p in pacientes:
             print(f"ID {p[0]}: {p[1]}, Fecha de nacimiento: {p[2]}, Teléfono: {p[3]}")
 
-    def listar_medicos(self):
-        if not self.medicos:
+    def listar_medicos(self, medicos):
+        if not medicos:
             print("No hay médicos registrados.")
             return
         print("\n--- Lista de médicos ---")
-        for m in self.medicos.values():
-            print(f"ID {m.id}: {m.nombre}, Especialidad: {m.especialidad}")
+        for m in medicos:
+            print(f"ID {m[0]}: {m[1]}, Especialidad: {m[2]}")
+            
 
 
 def mostrar_menu():
@@ -325,11 +326,17 @@ def main():
             nombre = input("Nombre del paciente: ").strip()
             fecha_nac = input("Fecha de nacimiento (YYYY-MM-DD): ").strip()
             telefono = input("Teléfono: ").strip()
+            db.ejecutar_instruccion(
+            "INSERT INTO Pacientes (nombre, fechaNacimiento, Telefono) VALUES (?, ?, ?)", (nombre, fecha_nac, telefono)
+            )
             agenda.registrar_paciente(nombre, fecha_nac, telefono)
 
         elif opcion == '2':
             nombre = input("Nombre del médico: ").strip()
             especialidad = input("Especialidad: ").strip()
+            db.ejecutar_instruccion(
+            "INSERT INTO Medicos (nombre, Especialidad) VALUES (?, ?, )", (nombre, especialidad)
+            )
             agenda.registrar_medico(nombre, especialidad)
 
         elif opcion == '3':
@@ -366,7 +373,8 @@ def main():
             agenda.listar_pacientes(pacientes)
 
         elif opcion == '8':
-            agenda.listar_medicos()
+            medicos = db.ejecutar_consulta("SELECT * FROM Medicos")
+            agenda.listar_medicos(medicos)
 
         elif opcion == '9':
             print("Saliendo del sistema. ¡Hasta luego!")
