@@ -263,8 +263,9 @@ def main():
         elif opcion == '2':
             nombre = validar_nombre_sin_simbolos("Nombre del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
             especialidad = validar_nombre_sin_simbolos("Especialidad del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
+            # Corregir tabla y placeholders: insertar en Medicos con 2 columnas y 2 marcadores
             db.ejecutar_instruccion(
-            "INSERT INTO Pacientes (nombre, especialida) VALUES (?, ?, ?)", (nombre, especialidad)
+                "INSERT INTO Medicos (nombre, especialidad) VALUES (?, ?)", (nombre, especialidad)
             )
             agenda.registrar_medico(nombre, especialidad)
 
@@ -292,78 +293,6 @@ def main():
         elif opcion == '6':
             try:
                 paciente_id = validar_entero("ID del paciente para ver historial: ")
-                agenda.historial_paciente(paciente_id)
-            except ValueError:
-                print("ID inválido.")
-
-        elif opcion == '7':
-            pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
-            agenda.listar_pacientes(pacientes)
-
-        elif opcion == '8':
-            medicos = db.ejecutar_consulta("SELECT * FROM Medicos")
-            agenda.listar_medicos(medicos)
-
-        elif opcion == '9':
-            print("Saliendo del sistema. ¡Hasta luego!")
-            break
-
-        else:
-            print("Opción no válida, intente de nuevo.")
-
-if __name__ == "__main__":
-    main()
-
-def main():
-    agenda = AgendaMedica()
-    db = ConexionBD()
-    db.conectar()
-    while True:
-        mostrar_menu()
-        opcion = input("Seleccione una opción: ")
-
-        if opcion == '1':
-            nombre = input("Nombre del paciente: ").strip()
-            fecha_nac = input("Fecha de nacimiento (YYYY-MM-DD): ").strip()
-            telefono = input("Teléfono: ").strip()
-            db.ejecutar_instruccion(
-            "INSERT INTO Pacientes (nombre, fechaNacimiento, Telefono) VALUES (?, ?, ?)", (nombre, fecha_nac, telefono)
-            )
-            agenda.registrar_paciente(nombre, fecha_nac, telefono)
-
-        elif opcion == '2':
-            nombre = input("Nombre del médico: ").strip()
-            especialidad = input("Especialidad: ").strip()
-            db.ejecutar_instruccion(
-            "INSERT INTO Medicos (nombre, Especialidad) VALUES (?, ?, )", (nombre, especialidad)
-            )
-            agenda.registrar_medico(nombre, especialidad)
-
-        elif opcion == '3':
-            try:
-                paciente_id = int(input("ID del paciente: "))
-                medico_id = int(input("ID del médico: "))
-                fecha_str = input("Fecha y hora de la cita (YYYY-MM-DD HH:MM): ").strip()
-                fecha_hora = datetime.strptime(fecha_str, "%Y-%m-%d %H:%M")
-                motivo = input("Motivo de la consulta: ").strip()
-                agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
-            except ValueError:
-                print("Error: Formato de fecha/hora inválido o ID no numérico.")
-
-        elif opcion == '4':
-            agenda.listar_proximas_citas()
-
-        elif opcion == '5':
-            try:
-                cita_id = int(input("ID de la cita a registrar como atendida: "))
-                notas = input("Notas de la atención: ").strip()
-                agenda.registrar_atencion(cita_id, notas)
-            except ValueError:
-                print("ID inválido.")
-
-        elif opcion == '6':
-            try:
-                paciente_id = int(input("ID del paciente para ver historial: "))
                 agenda.historial_paciente(paciente_id)
             except ValueError:
                 print("ID inválido.")
