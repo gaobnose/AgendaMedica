@@ -182,6 +182,137 @@ def mostrar_menu():
     print("8. Listar médicos")
     print("9. Salir")
 
+def validar_nombre(prompt):
+    """Pide un nombre y valida que tenga más de 3 caracteres y solo contenga letras y espacios."""
+    while True:
+        nombre = input(prompt).strip()
+        if len(nombre) > 3 and nombre.replace(' ', '').isalpha():
+            return nombre
+        else:
+            print("Error: El nombre debe tener más de 3 caracteres y contener solo letras y espacios. Intente de nuevo.")
+
+
+def validar_fecha(prompt, formato="%Y-%m-%d"):
+    """Pide una fecha y valida que tenga el formato correcto."""
+    while True:
+        fecha_str = input(prompt).strip()
+        try:
+            fecha_obj = datetime.strptime(fecha_str, formato)
+            return fecha_obj
+        except ValueError:
+            print(f"Error: Formato de fecha inválido. Por favor, use el formato {formato.replace('%Y', 'AAAA').replace('%m', 'MM').replace('%d', 'DD').replace('%H', 'HH').replace('%M', 'mm')}.")
+
+
+def validar_telefono(prompt):
+    """Pide un teléfono y valida que sea numérico y tenga una longitud razonable."""
+    while True:
+        telefono = input(prompt).strip()
+        if telefono.isdigit() and len(telefono) >= 8:
+            return telefono
+        else:
+            print("Error: El teléfono debe contener solo números y tener al menos 8 dígitos. Intente de nuevo.")
+
+
+def validar_entero(prompt):
+    """Pide un número entero (como un ID) y valida que sea un número."""
+    while True:
+        id_str = input(prompt).strip()
+        try:
+            return int(id_str)
+        except ValueError:
+            print("Error: Por favor, ingrese un número de ID válido.")
+
+
+def validar_texto_no_vacio(prompt):
+    """Pide un texto (como un motivo o notas) y valida que no esté vacío."""
+    while True:
+        texto = input(prompt).strip()
+        if texto:
+            return texto
+        else:
+            print("Error: Este campo no puede estar vacío. Intente de nuevo.")
+
+def validar_nombre_sin_simbolos(prompt):
+    """Pide un nombre y valida que tenga más de 3 caracteres, solo contenga letras y espacios, y no incluya símbolos."""
+    while True:
+        nombre = input(prompt).strip()
+        if len(nombre) > 3 and all(c.isalpha() or c.isspace() for c in nombre):
+            return nombre
+        else:
+            print("Error: El texto debe tener más de 3 caracteres, contener solo letras y no incluir símbolos. Intente de nuevo.")
+
+def main():
+    agenda = AgendaMedica()
+    db = ConexionBD()
+    db.conectar()
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == '1':
+            nombre = validar_nombre("Nombre del paciente: ")
+            fecha_obj = validar_fecha("Fecha de nacimiento (AAAA-MM-DD): ", formato="%Y-%m-%d")
+            fecha_nac = fecha_obj.strftime("%Y-%m-%d")
+            telefono = validar_telefono("Teléfono: ")
+            db.ejecutar_instruccion(
+            "INSERT INTO Pacientes (nombre, fechaNacimiento, Telefono) VALUES (?, ?, ?)", (nombre, fecha_nac, telefono)
+            )
+            agenda.registrar_paciente(nombre, fecha_nac, telefono)
+
+        elif opcion == '2':
+            nombre = validar_nombre_sin_simbolos("Nombre del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
+            especialidad = validar_nombre_sin_simbolos("Especialidad del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
+            db.ejecutar_instruccion(
+            "INSERT INTO Pacientes (nombre, especialida) VALUES (?, ?, ?)", (nombre, especialidad)
+            )
+            agenda.registrar_medico(nombre, especialidad)
+
+        elif opcion == '3':
+            try:
+                paciente_id = validar_entero("ID del paciente: ")
+                medico_id = validar_entero("ID del médico: ")
+                fecha_hora = validar_fecha("Fecha y hora de la cita (AAAA-MM-DD HH:MM): ", formato="%Y-%m-%d %H:%M")
+                motivo = validar_texto_no_vacio("Motivo de la consulta: ")
+                agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
+            except ValueError:
+                print("Error: Formato de fecha/hora inválido o ID no numérico.")
+
+        elif opcion == '4':
+            agenda.listar_proximas_citas()
+
+        elif opcion == '5':
+            try:
+                cita_id = validar_entero("ID de la cita a registrar como atendida: ")
+                notas = validar_texto_no_vacio("Notas de la atención: ")
+                agenda.registrar_atencion(cita_id, notas)
+            except ValueError:
+                print("ID inválido.")
+
+        elif opcion == '6':
+            try:
+                paciente_id = validar_entero("ID del paciente para ver historial: ")
+                agenda.historial_paciente(paciente_id)
+            except ValueError:
+                print("ID inválido.")
+
+        elif opcion == '7':
+            pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
+            agenda.listar_pacientes(pacientes)
+
+        elif opcion == '8':
+            medicos = db.ejecutar_consulta("SELECT * FROM Medicos")
+            agenda.listar_medicos(medicos)
+
+        elif opcion == '9':
+            print("Saliendo del sistema. ¡Hasta luego!")
+            break
+
+        else:
+            print("Opción no válida, intente de nuevo.")
+
+if __name__ == "__main__":
+    main()
+
 def main():
     agenda = AgendaMedica()
     db = ConexionBD()
