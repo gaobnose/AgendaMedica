@@ -276,10 +276,13 @@ def main():
                 fecha_hora = validar_fecha("Fecha y hora de la cita (AAAA-MM-DD HH:MM): ", formato="%Y-%m-%d %H:%M")
                 motivo = validar_texto_no_vacio("Motivo de la consulta: ")
                 agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
+                db.ejecutar_instruccion(
+                "INSERT INTO Citas (PacienteID, MedicoID, FechaHora, motivo ) VALUES (?, ?,?,?)", (paciente_id, medico_id, fecha_hora, motivo)
+            )
             except ValueError:
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
 
-        elif opcion == '4':
+        elif opcion == '4':            
             agenda.listar_proximas_citas()
 
         elif opcion == '5':
