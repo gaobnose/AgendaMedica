@@ -112,16 +112,14 @@ class AgendaMedica:
         self.next_cita_id += 1
         print(f"Cita agendada: Paciente {cita.paciente.nombre} con Médico {cita.medico.nombre} el {fecha_hora}")
 
-    def listar_proximas_citas(self):
-        fecha_actual = datetime.now()
-        citas_proximas = [c for c in self.citas.values() if c.fecha_hora >= fecha_actual and c.estado == 'pendiente']
-        citas_proximas.sort(key=lambda c: c.fecha_hora)
-        if not citas_proximas:
+    def listar_proximas_citas(self, db):
+        citas = db.ejecutar_consulta("SELECT * FROM Citas")
+        if not citas:
             print("No hay próximas citas.")
             return
         print("\n--- Próximas citas ---")
-        for cita in citas_proximas:
-            print(f"ID {cita.id}: {cita.fecha_hora} - Paciente: {cita.paciente.nombre}, Médico: {cita.medico.nombre}")
+        for c in citas:
+            print(f"ID {c[0]}: {c[1]} - Paciente: {c[2]}, Médico: {c[3]}")
 
     def registrar_atencion(self, cita_id, notas):
         if cita_id not in self.citas:
