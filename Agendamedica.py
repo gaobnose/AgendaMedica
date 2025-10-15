@@ -98,10 +98,8 @@ class AgendaMedica:
 
     def agendar_cita(self, paciente_id, medico_id, fecha_hora, motivo):
         if paciente_id not in self.pacientes:
-            print("Paciente no encontrado.")
             return
         if medico_id not in self.medicos:
-            print("Médico no encontrado.")
             return
         for cita in self.citas.values():
             if (cita.medico.id == medico_id and cita.fecha_hora == fecha_hora and cita.estado == 'pendiente'):
@@ -112,16 +110,15 @@ class AgendaMedica:
         self.next_cita_id += 1
         print(f"Cita agendada: Paciente {cita.paciente.nombre} con Médico {cita.medico.nombre} el {fecha_hora}")
 
-    def listar_proximas_citas(self):
-        fecha_actual = datetime.now()
-        citas_proximas = [c for c in self.citas.values() if c.fecha_hora >= fecha_actual and c.estado == 'pendiente']
-        citas_proximas.sort(key=lambda c: c.fecha_hora)
-        if not citas_proximas:
+    def listar_proximas_citas(self, db):
+        citas = db.ejecutar_consulta("SELECT * FROM Citas")
+        if not citas:
             print("No hay próximas citas.")
             return
         print("\n--- Próximas citas ---")
-        for cita in citas_proximas:
-            print(f"ID {cita.id}: {cita.fecha_hora} - Paciente: {cita.paciente.nombre}, Médico: {cita.medico.nombre}")
+        for c in citas:
+            print(f"ID {c[0]}: {c[1]} - Paciente: {c[2]}, Médico: {c[3]}")
+
 
     def registrar_atencion(self, cita_id, notas):
         if cita_id not in self.citas:
@@ -153,7 +150,7 @@ class AgendaMedica:
             print(f"- {atencion['fecha']}: Médico {atencion['medico']}, Motivo: {atencion['motivo']}, Notas: {atencion['notas']}")
 
     def listar_pacientes(self, pacientes):
-        
+ 
         if not pacientes:
             print("No hay pacientes registrados.")
             return
@@ -263,7 +260,6 @@ def main():
         elif opcion == '2':
             nombre = validar_nombre_sin_simbolos("Nombre del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
             especialidad = validar_nombre_sin_simbolos("Especialidad del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
-            # Corregir tabla y placeholders: insertar en Medicos con 2 columnas y 2 marcadores
             db.ejecutar_instruccion(
                 "INSERT INTO Medicos (nombre, especialidad) VALUES (?, ?)", (nombre, especialidad)
             )
@@ -282,9 +278,9 @@ def main():
             except ValueError:
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
 
-        elif opcion == '4':            
-            agenda.listar_proximas_citas()
-
+        elif opcion == '4':
+            agenda.listar_proximas_citas(db)
+            
         elif opcion == '5':
             try:
                 cita_id = validar_entero("ID de la cita a registrar como atendida: ")
