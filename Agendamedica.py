@@ -116,9 +116,8 @@ class AgendaMedica:
             print("No hay próximas citas.")
             return
         print("\n--- Próximas citas ---")
-        for c in citas:
-            print(f"ID {c[0]}: {c[1]} - Paciente: {c[2]}, Médico: {c[3]}")
-
+        for cita in citas_proximas:
+            print(f"ID {cita.id}: {cita.fecha_hora} - Paciente: {cita.paciente.nombre}, Médico: {cita.medico.nombre}")
 
     def registrar_atencion(self, cita_id, notas):
         if cita_id not in self.citas:
