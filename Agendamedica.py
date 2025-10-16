@@ -180,7 +180,7 @@ class AgendaMedica:
             print("Error al obtener el historial del paciente:", e)
 
     def listar_pacientes(self, pacientes):
-        
+ 
         if not pacientes:
             print("No hay pacientes registrados.")
             return
@@ -303,16 +303,11 @@ def main():
                 fecha_hora = validar_fecha("Fecha y hora de la cita (AAAA-MM-DD HH:MM): ", formato="%Y-%m-%d %H:%M")
                 motivo = validar_texto_no_vacio("Motivo de la consulta: ")
                 agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
-                db.ejecutar_instruccion(
-                "INSERT INTO Citas(PacienteID, MedicoID, FechaHora, motivo) VALUES (?, ?, ?,?)", (paciente_id, medico_id,fecha_hora , motivo)
-            )
-                
             except ValueError:
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
 
         elif opcion == '4':
-             pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
-             agenda.listar_proximas_citas(pacientes)
+            agenda.listar_proximas_citas()
 
         elif opcion == '5':
             try:
