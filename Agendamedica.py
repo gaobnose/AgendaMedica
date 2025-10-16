@@ -73,7 +73,7 @@ class Cita:
         self.medico = medico
         self.fecha_hora = fecha_hora
         self.motivo = motivo
-        self.estado = 'pendiente'
+        self.estado = 'pendiente' 
 
 class AgendaMedica:
     def __init__(self):
@@ -98,10 +98,8 @@ class AgendaMedica:
 
     def agendar_cita(self, paciente_id, medico_id, fecha_hora, motivo):
         if paciente_id not in self.pacientes:
-            print("Paciente no encontrado.")
             return
         if medico_id not in self.medicos:
-            print("Médico no encontrado.")
             return
         for cita in self.citas.values():
             if (cita.medico.id == medico_id and cita.fecha_hora == fecha_hora and cita.estado == 'pendiente'):
@@ -112,45 +110,74 @@ class AgendaMedica:
         self.next_cita_id += 1
         print(f"Cita agendada: Paciente {cita.paciente.nombre} con Médico {cita.medico.nombre} el {fecha_hora}")
 
-    def listar_proximas_citas(self):
-        fecha_actual = datetime.now()
-        citas_proximas = [c for c in self.citas.values() if c.fecha_hora >= fecha_actual and c.estado == 'pendiente']
-        citas_proximas.sort(key=lambda c: c.fecha_hora)
-        if not citas_proximas:
+    def listar_proximas_citas(self, db):
+        citas = db.ejecutar_consulta("SELECT * FROM Citas")
+        if not citas:
             print("No hay próximas citas.")
             return
         print("\n--- Próximas citas ---")
-        for cita in citas_proximas:
-            print(f"ID {cita.id}: {cita.fecha_hora} - Paciente: {cita.paciente.nombre}, Médico: {cita.medico.nombre}")
+        for c in citas:
+            print(f"ID {c[0]}: {c[1]} - Paciente: {c[2]}, Médico: {c[3]}")
 
-    def registrar_atencion(self, cita_id, notas):
-        if cita_id not in self.citas:
-            print("Cita no encontrada.")
-            return
-        cita = self.citas[cita_id]
-        if cita.estado != 'pendiente':
-            print("La cita ya fue atendida o cancelada.")
-            return
-        cita.estado = 'atendida'
-        cita.paciente.historial.append({
-            'fecha': cita.fecha_hora,
-            'medico': cita.medico.nombre,
-            'motivo': cita.motivo,
-            'notas': notas
-        })
-        print(f"Cita ID {cita_id} marcada como atendida.")
+    def registrar_atencion(self, cita_id, notas, db):
+        consulta_sql = "SELECT Estado FROM Citas WHERE CitaID = ?"
+        resultado = db.ejecutar_consulta(consulta_sql, (cita_id,))
 
-    def historial_paciente(self, paciente_id):
-        if paciente_id not in self.pacientes:
-            print("Paciente no encontrado.")
+        if not resultado:
+            print(f"Error: No se encontró ninguna cita con el ID {cita_id}.")
             return
-        paciente = self.pacientes[paciente_id]
-        if not paciente.historial:
-            print(f"No hay historial médico para {paciente.nombre}.")
+
+        estado_actual = resultado[0][0]
+        if estado_actual == 'atendida':
+            print(f"Aviso: La cita ID {cita_id} ya ha sido atendida.")
             return
-        print(f"\n--- Historial médico de {paciente.nombre} ---")
-        for atencion in paciente.historial:
-            print(f"- {atencion['fecha']}: Médico {atencion['medico']}, Motivo: {atencion['motivo']}, Notas: {atencion['notas']}")
+        elif estado_actual != 'pendiente':
+            print(f"Error: La cita no se puede atender porque su estado es '{estado_actual}'.")
+            return
+      
+        print(f"Actualizando estado de la cita ID {cita_id} a 'atendida'...")
+        update_estado_sql = "UPDATE Citas SET Estado = 'atendida' WHERE CitaID = ?"
+        db.ejecutar_instruccion(update_estado_sql, (cita_id,))
+
+       
+        print(f"Guardando notas de atención en la base de datos...")
+        update_notas_sql = "UPDATE Citas SET NotasAtencion = ? WHERE CitaID = ?"
+        db.ejecutar_instruccion(update_notas_sql, (notas, cita_id)) 
+        print(f"Cita ID {cita_id} registrada como atendida en la base de datos.")
+
+        if cita_id in self.citas:
+           
+            cita_en_memoria = self.citas[cita_id]
+            cita_en_memoria.estado = 'atendida'
+            cita_en_memoria.paciente.historial.append({
+                'fecha': cita_en_memoria.fecha_hora,
+                'medico': cita_en_memoria.medico.nombre,
+                'motivo': cita_en_memoria.motivo,
+                'notas': notas
+            })
+            print("Historial en memoria del paciente actualizado.")
+
+
+    def historial_paciente(self, paciente_id, db):
+        try:
+            historial = db.ejecutar_consulta(
+                "SELECT FechaHora, MedicoID, Motivo, NotasAtencion FROM Citas WHERE PacienteID = ? AND estado = 'atendida'", (paciente_id,)
+            )
+            if not historial:
+                print("No hay historial médico para este paciente.")
+                return
+            print(f"\n--- Historial médico del paciente ID {paciente_id} ---")
+            for registro in historial:
+                fecha, medico_id, motivo, notas_atencion = registro 
+                
+                medico_nombre = db.ejecutar_consulta(
+                    "SELECT Nombre FROM Medicos WHERE MedicoID = ?", (medico_id,)
+                )
+                
+                medico_nombre = medico_nombre[0][0] if medico_nombre else "Desconocido"
+                print(f"Fecha: {fecha.strftime('%Y-%m-%d %H:%M')}, Médico: {medico_nombre}, Motivo: {motivo}\n\t Notas: {notas_atencion}")
+        except Exception as e:
+            print("Error al obtener el historial del paciente:", e)
 
     def listar_pacientes(self, pacientes):
         
@@ -246,6 +273,7 @@ def main():
     agenda = AgendaMedica()
     db = ConexionBD()
     db.conectar()
+
     while True:
         mostrar_menu()
         opcion = input("Seleccione una opción: ")
@@ -263,7 +291,6 @@ def main():
         elif opcion == '2':
             nombre = validar_nombre_sin_simbolos("Nombre del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
             especialidad = validar_nombre_sin_simbolos("Especialidad del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
-            # Corregir tabla y placeholders: insertar en Medicos con 2 columnas y 2 marcadores
             db.ejecutar_instruccion(
                 "INSERT INTO Medicos (nombre, especialidad) VALUES (?, ?)", (nombre, especialidad)
             )
@@ -276,27 +303,33 @@ def main():
                 fecha_hora = validar_fecha("Fecha y hora de la cita (AAAA-MM-DD HH:MM): ", formato="%Y-%m-%d %H:%M")
                 motivo = validar_texto_no_vacio("Motivo de la consulta: ")
                 agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
+                db.ejecutar_instruccion(
+                "INSERT INTO Citas(PacienteID, MedicoID, FechaHora, motivo) VALUES (?, ?, ?,?)", (paciente_id, medico_id,fecha_hora , motivo)
+            )
+                
             except ValueError:
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
 
         elif opcion == '4':
-            agenda.listar_proximas_citas()
+             pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
+             agenda.listar_proximas_citas(pacientes)
 
         elif opcion == '5':
             try:
                 cita_id = validar_entero("ID de la cita a registrar como atendida: ")
                 notas = validar_texto_no_vacio("Notas de la atención: ")
-                agenda.registrar_atencion(cita_id, notas)
+                agenda.registrar_atencion(cita_id, notas,db)
             except ValueError:
                 print("ID inválido.")
+          
 
         elif opcion == '6':
             try:
                 paciente_id = validar_entero("ID del paciente para ver historial: ")
-                agenda.historial_paciente(paciente_id)
+                agenda.historial_paciente(paciente_id,db)
             except ValueError:
                 print("ID inválido.")
-
+             
         elif opcion == '7':
             pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
             agenda.listar_pacientes(pacientes)
