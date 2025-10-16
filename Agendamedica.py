@@ -317,7 +317,6 @@ def main():
             except ValueError:
                 print("ID inválido.")
           
-
         elif opcion == '6':
             try:
                 paciente_id = validar_entero("ID del paciente para ver historial: ")
