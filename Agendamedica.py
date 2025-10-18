@@ -96,28 +96,58 @@ class AgendaMedica:
         self.next_medico_id += 1
         print(f"Médico registrado: {medico.nombre} (ID {medico.id})")
 
-    def agendar_cita(self, paciente_id, medico_id, fecha_hora, motivo):
-        if paciente_id not in self.pacientes:
+    def agendar_cita(self, paciente_id, medico_id, fecha_hora, motivo, db):
+        paciente_existe = db.ejecutar_consulta("SELECT 1 FROM Pacientes WHERE PacienteID = ?", (paciente_id,))
+        if not paciente_existe:
+            print(f"Error: No se encontró ningún paciente con el ID {paciente_id}.")
             return
-        if medico_id not in self.medicos:
+        medico_existe = db.ejecutar_consulta("SELECT 1 FROM Medicos WHERE MedicoID = ?", (medico_id,))
+        if not medico_existe:
+            print(f"Error: No se encontró ningún médico con el ID {medico_id}.")
             return
-        for cita in self.citas.values():
-            if (cita.medico.id == medico_id and cita.fecha_hora == fecha_hora and cita.estado == 'pendiente'):
-                print("Conflicto de horario: el médico ya tiene una cita en esa fecha y hora.")
-                return
-        cita = Cita(self.next_cita_id, self.pacientes[paciente_id], self.medicos[medico_id], fecha_hora, motivo)
-        self.citas[self.next_cita_id] = cita
-        self.next_cita_id += 1
-        print(f"Cita agendada: Paciente {cita.paciente.nombre} con Médico {cita.medico.nombre} el {fecha_hora}")
+        conflicto = db.ejecutar_consulta(
+            "SELECT 1 FROM Citas WHERE MedicoID = ? AND FechaHora = ? AND Estado = 'pendiente'",
+            (medico_id, fecha_hora)
+        )
+        if conflicto:
+            print("Error: Conflicto de horario. El médico ya tiene una cita en esa fecha y hora.")
+            return     
+        consulta_sql = """
+        INSERT INTO Citas (PacienteID, MedicoID, FechaHora, Motivo, Estado)
+        VALUES (?, ?, ?, ?, 'pendiente')
+        """
+        try:
+            db.ejecutar_instruccion(consulta_sql, (paciente_id, medico_id, fecha_hora, motivo))
+            print(f"Cita agendada exitosamente en la base de datos.")
+
+        except Exception as e:
+            print(f"Ocurrió un error inesperado al agendar la cita: {e}")
 
     def listar_proximas_citas(self, db):
-        citas = db.ejecutar_consulta("SELECT * FROM Citas")
+        consulta_sql = """
+        SELECT
+            c.CitaID,
+            c.FechaHora,
+            p.Nombre AS NombrePaciente,
+            m.Nombre AS NombreMedico,
+            c.Motivo
+        FROM Citas c
+        JOIN Pacientes p ON c.PacienteID = p.PacienteID
+        JOIN Medicos m ON c.MedicoID = m.MedicoID
+        WHERE c.Estado = 'pendiente'
+        ORDER BY c.FechaHora ASC;
+        """
+        citas = db.ejecutar_consulta(consulta_sql)
         if not citas:
-            print("No hay próximas citas.")
+            print("No hay próximas citas pendientes.")
             return
-        print("\n--- Próximas citas ---")
+        print("\n--- Próximas citas pendientes ---")
         for c in citas:
-            print(f"ID {c[0]}: {c[1]} - Paciente: {c[2]}, Médico: {c[3]}")
+            fecha_formateada = c[1].strftime('%Y-%m-%d %H:%M')
+            print(f"\nID Cita: {c[0]} | Fecha: {fecha_formateada}")
+            print(f"  Paciente: {c[2]}")
+            print(f"  Médico:   {c[3]}")
+            print(f"  Motivo:   {c[4]}")
 
     def registrar_atencion(self, cita_id, notas, db):
         consulta_sql = "SELECT Estado FROM Citas WHERE CitaID = ?"
@@ -302,12 +332,12 @@ def main():
                 medico_id = validar_entero("ID del médico: ")
                 fecha_hora = validar_fecha("Fecha y hora de la cita (AAAA-MM-DD HH:MM): ", formato="%Y-%m-%d %H:%M")
                 motivo = validar_texto_no_vacio("Motivo de la consulta: ")
-                agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo)
+                agenda.agendar_cita(paciente_id, medico_id, fecha_hora, motivo,db)
             except ValueError:
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
 
         elif opcion == '4':
-            agenda.listar_proximas_citas()
+            agenda.listar_proximas_citas(db)
 
         elif opcion == '5':
             try:
