@@ -239,6 +239,7 @@ def mostrar_menu():
     print("7. Listar pacientes")
     print("8. Listar médicos")
     print("9. Salir")
+    print("--- Dr. Simi Constultorio Médico ---\n")
 
 def validar_nombre(prompt):
     """Pide un nombre y valida que tenga más de 3 caracteres y solo contenga letras y espacios."""
