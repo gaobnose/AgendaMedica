@@ -158,56 +158,44 @@ class AgendaMedica:
             return
 
         estado_actual = resultado[0][0]
+
         if estado_actual == 'atendida':
             print(f"Aviso: La cita ID {cita_id} ya ha sido atendida.")
             return
         elif estado_actual != 'pendiente':
             print(f"Error: La cita no se puede atender porque su estado es '{estado_actual}'.")
             return
-      
-        print(f"Actualizando estado de la cita ID {cita_id} a 'atendida'...")
-        update_estado_sql = "UPDATE Citas SET Estado = 'atendida' WHERE CitaID = ?"
-        db.ejecutar_instruccion(update_estado_sql, (cita_id,))
-
-       
-        print(f"Guardando notas de atención en la base de datos...")
-        update_notas_sql = "UPDATE Citas SET NotasAtencion = ? WHERE CitaID = ?"
-        db.ejecutar_instruccion(update_notas_sql, (notas, cita_id)) 
-        print(f"Cita ID {cita_id} registrada como atendida en la base de datos.")
-
-        if cita_id in self.citas:
-           
-            cita_en_memoria = self.citas[cita_id]
-            cita_en_memoria.estado = 'atendida'
-            cita_en_memoria.paciente.historial.append({
-                'fecha': cita_en_memoria.fecha_hora,
-                'medico': cita_en_memoria.medico.nombre,
-                'motivo': cita_en_memoria.motivo,
-                'notas': notas
-            })
-            print("Historial en memoria del paciente actualizado.")
+        
+        print(f"Registrando atención para la cita ID {cita_id}...")
+        update_sql = "UPDATE Citas SET Estado = 'atendida', NotasAtencion = ? WHERE CitaID = ?"
+        db.ejecutar_instruccion(update_sql, (notas, cita_id))
 
 
     def historial_paciente(self, paciente_id, db):
-        try:
-            historial = db.ejecutar_consulta(
-                "SELECT FechaHora, MedicoID, Motivo, NotasAtencion FROM Citas WHERE PacienteID = ? AND estado = 'atendida'", (paciente_id,)
-            )
-            if not historial:
-                print("No hay historial médico para este paciente.")
-                return
-            print(f"\n--- Historial médico del paciente ID {paciente_id} ---")
-            for registro in historial:
-                fecha, medico_id, motivo, notas_atencion = registro 
-                
-                medico_nombre = db.ejecutar_consulta(
-                    "SELECT Nombre FROM Medicos WHERE MedicoID = ?", (medico_id,)
-                )
-                
-                medico_nombre = medico_nombre[0][0] if medico_nombre else "Desconocido"
-                print(f"Fecha: {fecha.strftime('%Y-%m-%d %H:%M')}, Médico: {medico_nombre}, Motivo: {motivo}\n\t Notas: {notas_atencion}")
-        except Exception as e:
-            print("Error al obtener el historial del paciente:", e)
+        if not db.ejecutar_consulta("SELECT 1 FROM Pacientes WHERE PacienteID = ?", (paciente_id,)):
+            print(f"\n>> Error: No se encontró ningún paciente con el ID {paciente_id}.")
+            return
+            
+        historial = db.ejecutar_consulta(
+            "SELECT c.FechaHora, m.Nombre, c.Motivo, c.NotasAtencion FROM Citas c JOIN Medicos m ON c.MedicoID = m.MedicoID WHERE c.PacienteID = ? AND c.Estado = 'atendida' ORDER BY c.FechaHora DESC",
+            (paciente_id,)
+        )
+
+        nombre_paciente = db.ejecutar_consulta("SELECT Nombre FROM Pacientes WHERE PacienteID = ?", (paciente_id,))[0][0]
+        print(f"--- HISTORIAL MÉDICO DE: {nombre_paciente} (ID {paciente_id}) ---")
+
+        if not historial:
+            print("\n>> No hay historial médico para este paciente.")
+            return
+
+        for registro in historial:
+            fecha, medico_nombre, motivo, notas = registro
+            print("\n-------------------------------------------")
+            print(f"Fecha:     {fecha.strftime('%Y-%m-%d %H:%M')}")
+            print(f"Médico:    {medico_nombre}")
+            print(f"Motivo:    {motivo}")
+            print(f"Notas:     {notas}")
+        print("-------------------------------------------")
 
     def listar_pacientes(self, pacientes):
  
@@ -225,6 +213,46 @@ class AgendaMedica:
         print("\n--- Lista de médicos ---")
         for m in medicos:
             print(f"ID {m[0]}: {m[1]}, Especialidad: {m[2]}")
+
+
+    def cancelar_cita(self, cita_id, db):
+        resultado = db.ejecutar_consulta("SELECT Estado FROM Citas WHERE CitaID = ?", (cita_id,))
+        if not resultado:
+            print(f"\n>> Error: No se encontró ninguna cita con el ID {cita_id}.")
+            return
+
+        estado_actual = resultado[0][0]
+        if estado_actual == 'cancelada':
+            print(f"\n>> Aviso: La cita ID {cita_id} ya se encuentra cancelada.")
+        elif estado_actual == 'atendida':
+            print(f"\n>> Error: Una cita ya atendida no puede ser cancelada.")
+        else:
+            update_sql = "UPDATE Citas SET Estado = 'cancelada' WHERE CitaID = ?"
+            if db.ejecutar_instruccion(update_sql, (cita_id,)):
+                print(f"\n>> Cita ID {cita_id} cancelada exitosamente.")
+
+
+def limpiar_pantalla():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def imprimir_tabla(datos, encabezados):
+        """Imprime una lista de tuplas o listas en un formato de tabla."""
+    # Calcular anchos de columna
+        anchos = [len(h) for h in encabezados]
+        for fila in datos:
+            for i, celda in enumerate(fila):
+                if len(celda) > anchos[i]:
+                    anchos[i] = len(celda)
+    
+    # Imprimir
+        separador = "+-" + "-+-".join("-" * a for a in anchos) + "-+"
+        print(separador)
+        print("| " + " | ".join(h.ljust(anchos[i]) for i, h in enumerate(encabezados)) + " |")
+        print(separador)
+        for fila in datos:
+            print("| " + " | ".join(celda.ljust(anchos[i]) for i, celda in enumerate(fila)) + " |")
+        print(separador)
             
 
 
@@ -238,7 +266,9 @@ def mostrar_menu():
     print("6. Ver historial médico por paciente")
     print("7. Listar pacientes")
     print("8. Listar médicos")
-    print("9. Salir")
+    print("9. Cancelar Cita")
+    print("10. Salir")
+    print("--- Dr. Simi Constultorio Médico ---\n")
 
 def validar_nombre(prompt):
     """Pide un nombre y valida que tenga más de 3 caracteres y solo contenga letras y espacios."""
@@ -303,12 +333,23 @@ def main():
     agenda = AgendaMedica()
     db = ConexionBD()
     db.conectar()
+    
+    print("Conectando a la base de datos...")
+    db.conectar()
+    
+    if not db.conexion:
+        print("\nNo se pudo conectar a la base de datos. El programa terminará.")
+        input("Presione Enter para salir.")
+        return
 
     while True:
+        limpiar_pantalla()
         mostrar_menu()
         opcion = input("Seleccione una opción: ")
 
         if opcion == '1':
+            limpiar_pantalla()
+            print("--- REGISTRAR NUEVO PACIENTE ---")
             nombre = validar_nombre("Nombre del paciente: ")
             fecha_obj = validar_fecha("Fecha de nacimiento (AAAA-MM-DD): ", formato="%Y-%m-%d")
             fecha_nac = fecha_obj.strftime("%Y-%m-%d")
@@ -319,6 +360,8 @@ def main():
             agenda.registrar_paciente(nombre, fecha_nac, telefono)
 
         elif opcion == '2':
+            limpiar_pantalla()
+            print("--- REGISTRAR NUEVO MÉDICO ---")
             nombre = validar_nombre_sin_simbolos("Nombre del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
             especialidad = validar_nombre_sin_simbolos("Especialidad del médico (solo letras, mínimo 3 caracteres, sin símbolos): ")
             db.ejecutar_instruccion(
@@ -327,6 +370,8 @@ def main():
             agenda.registrar_medico(nombre, especialidad)
 
         elif opcion == '3':
+            limpiar_pantalla()
+            print("--- AGENDAR NUEVA CITA ---")
             try:
                 paciente_id = validar_entero("ID del paciente: ")
                 medico_id = validar_entero("ID del médico: ")
@@ -337,9 +382,12 @@ def main():
                 print("Error: Formato de fecha/hora inválido o ID no numérico.")
 
         elif opcion == '4':
+            limpiar_pantalla()
             agenda.listar_proximas_citas(db)
 
         elif opcion == '5':
+            limpiar_pantalla()
+            print("--- REGISTRAR ATENCIÓN DE CITA ---")
             try:
                 cita_id = validar_entero("ID de la cita a registrar como atendida: ")
                 notas = validar_texto_no_vacio("Notas de la atención: ")
@@ -348,6 +396,7 @@ def main():
                 print("ID inválido.")
           
         elif opcion == '6':
+            limpiar_pantalla()
             try:
                 paciente_id = validar_entero("ID del paciente para ver historial: ")
                 agenda.historial_paciente(paciente_id,db)
@@ -355,19 +404,32 @@ def main():
                 print("ID inválido.")
              
         elif opcion == '7':
+            limpiar_pantalla()
             pacientes = db.ejecutar_consulta("SELECT * FROM Pacientes")
             agenda.listar_pacientes(pacientes)
 
         elif opcion == '8':
+            limpiar_pantalla()
             medicos = db.ejecutar_consulta("SELECT * FROM Medicos")
             agenda.listar_medicos(medicos)
 
         elif opcion == '9':
-            print("Saliendo del sistema. ¡Hasta luego!")
+            limpiar_pantalla()
+            print("--- CANCELAR CITA ---")
+            cita_id = validar_entero("ID de la Cita a cancelar: ")
+            agenda.cancelar_cita(cita_id, db)
+
+
+        elif opcion == '10':
+            print("\nSaliendo del sistema. ¡Hasta luego!")
+            db.cerrar_conexion()
             break
 
         else:
-            print("Opción no válida, intente de nuevo.")
+            print("\n>> Opción no válida. Intente de nuevo.")
+
+        if opcion != '10':
+            input("\nPresione Enter para volver al menú...")
 
 if __name__ == "__main__":
     main()
