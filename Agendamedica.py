@@ -266,9 +266,7 @@ def mostrar_menu():
     print("6. Ver historial médico por paciente")
     print("7. Listar pacientes")
     print("8. Listar médicos")
-    print("9. Cancelar Cita")
-    print("10. Salir")
-    print("--- Dr. Simi Constultorio Médico ---\n")
+    print("9. Salir")
 
 def validar_nombre(prompt):
     """Pide un nombre y valida que tenga más de 3 caracteres y solo contenga letras y espacios."""
