@@ -3,6 +3,24 @@ from datetime import datetime
 import pyodbc
 from dotenv import load_dotenv
 import os
+from faker import Faker
+
+
+fake=Faker('es_cl')
+
+class fakers:
+    def generar_nombre(self):
+        return fake.name()
+    
+    def generar_fecha_nacimiento(self):
+        return fake.date_of_birth(minimum_age=0, maximum_age=100).strftime("%Y-%m-%d")
+    
+    def generar_telefono(self):
+        return fake.phone_number()
+    
+    def generar_especialidad(self):
+        especialidades = ['forniteeeeeeee','kdwajdwajjdw,','Cardiología', 'Dermatología', 'Pediatría', 'Neurología', 'Ginecología', 'Ortopedia', 'Psiquiatría', 'Oftalmología', 'Endocrinología']
+        return fake.random.choice(especialidades)
 
 class ConexionBD:
     def __init__(self):
@@ -146,8 +164,8 @@ class AgendaMedica:
             fecha_formateada = c[1].strftime('%Y-%m-%d %H:%M')
             print(f"\nID Cita: {c[0]} | Fecha: {fecha_formateada}")
             print(f"  Paciente: {c[2]}")
-            print(f"  Médico:   {c[3]}")
-            print(f"  Motivo:   {c[4]}")
+            print(f"  Médico: {c[3]}")
+            print(f"  Motivo: {c[4]}")   
 
     def registrar_atencion(self, cita_id, notas, db):
         consulta_sql = "SELECT Estado FROM Citas WHERE CitaID = ?"
@@ -203,16 +221,21 @@ class AgendaMedica:
             print("No hay pacientes registrados.")
             return
         print("\n--- Lista de pacientes ---")
-        for p in pacientes:
-            print(f"ID {p[0]}: {p[1]}, Fecha de nacimiento: {p[2]}, Teléfono: {p[3]}")
+        headers = ["ID", "Nombre Completo", "Fecha Nac.", "Teléfono"]
+        tabla_pacientes = [(str(p[0]), p[1], p[2].strftime('%Y-%m-%d'), p[3]) for p in pacientes]
+        
+        imprimir_tabla(tabla_pacientes, headers)
 
     def listar_medicos(self, medicos):
+        print("--- LISTA DE MÉDICOS ---")
         if not medicos:
-            print("No hay médicos registrados.")
+            print("\n>> No hay médicos registrados.")
             return
-        print("\n--- Lista de médicos ---")
-        for m in medicos:
-            print(f"ID {m[0]}: {m[1]}, Especialidad: {m[2]}")
+            
+        headers = ["ID", "Nombre Completo", "Especialidad"]
+        tabla_medicos = [(str(m[0]), m[1], m[2]) for m in medicos]
+        
+        imprimir_tabla(tabla_medicos, headers)
 
 
     def cancelar_cita(self, cita_id, db):
@@ -266,7 +289,9 @@ def mostrar_menu():
     print("6. Ver historial médico por paciente")
     print("7. Listar pacientes")
     print("8. Listar médicos")
-    print("9. Salir")
+    print("9. Cancelar Cita")
+    print("10. Salir")
+    print("--- Dr. Simi Constultorio Médico ---\n")
 
 def validar_nombre(prompt):
     """Pide un nombre y valida que tenga más de 3 caracteres y solo contenga letras y espacios."""
@@ -417,6 +442,35 @@ def main():
             cita_id = validar_entero("ID de la Cita a cancelar: ")
             agenda.cancelar_cita(cita_id, db)
 
+             
+        elif opcion == '11':
+            limpiar_pantalla()
+            print("--- GENERAR DATOS FALSOS ---")
+            num_pacientes = validar_entero("Número de pacientes falsos a generar: ")
+            num_medicos = validar_entero("Número de médicos falsos a generar: ")
+            faker_gen = fakers()
+
+            for _ in range(num_pacientes):
+                nombre = faker_gen.generar_nombre()
+                fecha_nac = faker_gen.generar_fecha_nacimiento()
+                telefono = faker_gen.generar_telefono()
+                db.ejecutar_instruccion(
+                    "INSERT INTO Pacientes (nombre, fechaNacimiento, Telefono) VALUES (?, ?, ?)",
+                    (nombre, fecha_nac, telefono)
+                )
+                agenda.registrar_paciente(nombre, fecha_nac, telefono)
+
+            for _ in range(num_medicos):
+                nombre = faker_gen.generar_nombre()
+                especialidad = faker_gen.generar_especialidad()
+                db.ejecutar_instruccion(
+                    "INSERT INTO Medicos (nombre, especialidad) VALUES (?, ?)",
+                    (nombre, especialidad)
+                )
+                agenda.registrar_medico(nombre, especialidad)
+
+            print(f"\n>> Se generaron {num_pacientes} pacientes y {num_medicos} médicos falsos.")
+
 
         elif opcion == '10':
             print("\nSaliendo del sistema. ¡Hasta luego!")
@@ -431,3 +485,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+    
