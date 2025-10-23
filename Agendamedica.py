@@ -19,7 +19,7 @@ class fakers:
         return fake.phone_number()
     
     def generar_especialidad(self):
-        especialidades = ['forniteeeeeeee','kdwajdwajjdw,','Cardiología', 'Dermatología', 'Pediatría', 'Neurología', 'Ginecología', 'Ortopedia', 'Psiquiatría', 'Oftalmología', 'Endocrinología']
+        especialidades = ['Cardiología', 'Dermatología', 'Pediatría', 'Neurología', 'Ginecología', 'Ortopedia', 'Psiquiatría', 'Oftalmología', 'Endocrinología']
         return fake.random.choice(especialidades)
 
 class ConexionBD:
