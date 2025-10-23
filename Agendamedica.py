@@ -3,6 +3,24 @@ from datetime import datetime
 import pyodbc
 from dotenv import load_dotenv
 import os
+from faker import Faker
+
+
+fake=Faker('es_cl')
+
+class fakers:
+    def generar_nombre(self):
+        return fake.name()
+    
+    def generar_fecha_nacimiento(self):
+        return fake.date_of_birth(minimum_age=0, maximum_age=100).strftime("%Y-%m-%d")
+    
+    def generar_telefono(self):
+        return fake.phone_number()
+    
+    def generar_especialidad(self):
+        especialidades = ['forniteeeeeeee','kdwajdwajjdw,','Cardiología', 'Dermatología', 'Pediatría', 'Neurología', 'Ginecología', 'Ortopedia', 'Psiquiatría', 'Oftalmología', 'Endocrinología']
+        return fake.random.choice(especialidades)
 
 class ConexionBD:
     def __init__(self):
@@ -423,35 +441,6 @@ def main():
             print("--- CANCELAR CITA ---")
             cita_id = validar_entero("ID de la Cita a cancelar: ")
             agenda.cancelar_cita(cita_id, db)
-            
-            
-        elif opcion == '11':
-            limpiar_pantalla()
-            print("--- GENERAR DATOS FALSOS ---")
-            num_pacientes = validar_entero("Número de pacientes falsos a generar: ")
-            num_medicos = validar_entero("Número de médicos falsos a generar: ")
-            faker_gen = fakers()
-
-            for _ in range(num_pacientes):
-                nombre = faker_gen.generar_nombre()
-                fecha_nac = faker_gen.generar_fecha_nacimiento()
-                telefono = faker_gen.generar_telefono()
-                db.ejecutar_instruccion(
-                    "INSERT INTO Pacientes (nombre, fechaNacimiento, Telefono) VALUES (?, ?, ?)",
-                    (nombre, fecha_nac, telefono)
-                )
-                agenda.registrar_paciente(nombre, fecha_nac, telefono)
-
-            for _ in range(num_medicos):
-                nombre = faker_gen.generar_nombre()
-                especialidad = faker_gen.generar_especialidad()
-                db.ejecutar_instruccion(
-                    "INSERT INTO Medicos (nombre, especialidad) VALUES (?, ?)",
-                    (nombre, especialidad)
-                )
-                agenda.registrar_medico(nombre, especialidad)
-
-            print(f"\n>> Se generaron {num_pacientes} pacientes y {num_medicos} médicos falsos.")
 
              
         elif opcion == '11':
