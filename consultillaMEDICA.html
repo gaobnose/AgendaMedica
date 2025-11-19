@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de gestión de agenda médica para el Consultorio Dr. Simi. Administra citas, pacientes y médicos de manera eficiente.">
+    <meta name="keywords" content="agenda médica, consultorio, citas, pacientes, médicos">
+    <meta name="author" content="Consultorio Dr. Simi">
+    <title>Agenda Médica - Consultorio Dr. Simi</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="bg-light">
+
+    <header class="bg-primary text-white py-3">
+        <div class="container">
+            <h1 class="mb-0">Gestión de Agenda Médica</h1>
+            <p class="mb-0">Consultorio Dr. Simi - Sistema Profesional de Citas</p>
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#gestion-citas">Citas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#gestion-pacientes">Pacientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#gestion-medicos">Médicos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+
+        <section id="gestion-citas" class="card mb-4 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h2 class="h4 mb-0">Gestión de Citas</h2>
+            </div>
+            <div class="card-body">
+
+                <form id="form-agendar-cita" class="row g-3 mb-4">
+                    <h3 class="h5">Agendar Nueva Cita</h3>
+                    <div class="col-md-6">
+                        <label for="cita-paciente-id" class="form-label">ID Paciente:</label>
+                        <input type="number" id="cita-paciente-id" class="form-control" required aria-describedby="pacienteHelp">
+                        <div id="pacienteHelp" class="form-text">Ingresa el ID del paciente registrado.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cita-medico-id" class="form-label">ID Médico:</label>
+                        <input type="number" id="cita-medico-id" class="form-control" required aria-describedby="medicoHelp">
+                        <div id="medicoHelp" class="form-text">Ingresa el ID del médico asignado.</div>
+                    </div>
+                    <div class="col-12">
+                        <label for="cita-fecha" class="form-label">Fecha y Hora:</label>
+                        <input type="datetime-local" id="cita-fecha" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="cita-motivo" class="form-label">Motivo de la Consulta:</label>
+                        <textarea id="cita-motivo" class="form-control" rows="3" placeholder="Describe el motivo de la cita..."></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Agendar Cita</button>
+                    </div>
+                </form>
+
+                <form id="form-gestionar-cita" class="row g-3 mb-4">
+                    <h3 class="h5">Gestionar Cita Existente</h3>
+                    <div class="col-md-6">
+                        <label for="gestion-cita-id" class="form-label">ID de la Cita:</label>
+                        <input type="number" id="gestion-cita-id" class="form-control" placeholder="Ingresa ID de cita...">
+                    </div>
+                    <div class="col-12">
+                        <label for="cita-notas" class="form-label">Notas de Atención (Opción 5):</label>
+                        <textarea id="cita-notas" class="form-control" rows="3" placeholder="Añadir notas si se registra atención..."></textarea>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Registrar Atención</button>
+                        <button type="button" class="btn btn-danger">Cancelar Cita</button>
+                    </div>
+                </form>
+
+                <div id="lista-proximas-citas">
+                    <h3 class="h5">Próximas Citas</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID Cita</th>
+                                    <th>Fecha/Hora</th>
+                                    <th>Paciente</th>
+                                    <th>Médico</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>101</td>
+                                    <td>2025-11-14 10:00</td>
+                                    <td>Juan Pérez</td>
+                                    <td>Dr. Extraño</td>
+                                    <td>Control</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gestion-pacientes" class="card mb-4 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h2 class="h4 mb-0">Gestión de Pacientes</h2>
+            </div>
+            <div class="card-body">
+
+                <form id="form-registrar-paciente" class="row g-3 mb-4">
+                    <h3 class="h5">Registrar Nuevo Paciente</h3>
+                    <div class="col-md-6">
+                        <label for="paciente-nombre" class="form-label">Nombre:</label>
+                        <input type="text" id="paciente-nombre" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="paciente-fecha-nac" class="form-label">Fecha Nacimiento:</label>
+                        <input type="date" id="paciente-fecha-nac" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label for="paciente-telefono" class="form-label">Teléfono:</label>
+                        <input type="tel" id="paciente-telefono" class="form-control" placeholder="+56912345678">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Registrar Paciente</button>
+                    </div>
+                </form>
+
+                <form id="form-historial-paciente" class="row g-3 mb-4">
+                    <h3 class="h5">Ver Historial de Paciente</h3>
+                    <div class="col-md-6">
+                        <label for="historial-paciente-id" class="form-label">ID del Paciente:</label>
+                        <input type="number" id="historial-paciente-id" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-secondary">Buscar Historial</button>
+                    </div>
+                </form>
+
+                <div id="lista-pacientes">
+                    <h3 class="h5">Lista de Pacientes</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Fecha Nac.</th>
+                                    <th>Teléfono</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Ana López</td>
+                                    <td>1990-05-15</td>
+                                    <td>+56912345678</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gestion-medicos" class="card mb-4 shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h2 class="h4 mb-0">Gestión de Médicos</h2>
+            </div>
+            <div class="card-body">
+
+                <form id="form-registrar-medico" class="row g-3 mb-4">
+                    <h3 class="h5">Registrar Nuevo Médico</h3>
+                    <div class="col-md-6">
+                        <label for="medico-nombre" class="form-label">Nombre:</label>
+                        <input type="text" id="medico-nombre" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="medico-especialidad" class="form-label">Especialidad:</label>
+                        <input type="text" id="medico-especialidad" class="form-control" placeholder="Ej: Cardiología">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Registrar Médico</button>
+                    </div>
+                </form>
+
+                <div id="lista-medicos">
+                    <h3 class="h5">Lista de Médicos</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Especialidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Dr. House</td>
+                                    <td>Diagnóstico</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-dark text-white text-center py-3">
+        <div class="container">
+            <p>&copy; 2025 Consultorio Dr. Simi. Todos los derechos reservados.
+                :V
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
