@@ -93,3 +93,12 @@ def registrar_medico(request):
             return HttpResponse(f"Error al registrar médico: {e}")
             
     return redirect('inicio')
+
+def eliminar_cita(request, id):
+    try:
+        # Busca la cita por su ID y la borra
+        cita = Cita.objects.get(id=id)
+        cita.delete()
+    except:
+        pass # Si no existe, no hace nada
+    return redirect('inicio')
