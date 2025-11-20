@@ -1,18 +1,27 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Paciente, Medico, Cita
-#  IMPORTAR EL DECORADOR DE SEGURIDAD
 from django.contrib.auth.decorators import login_required
 
 
 @login_required
 def index(request):
     "Consultamos a la base de datos (SELECT * FROM agenda_cita)"
-    lista_citas = Cita.objects.all()
+    # Es Administrador (Staff) -> Ve "todo"
+    if request.user.is_staff:
+        lista_citas = Cita.objects.all().order_by('fecha_hora')
     
-    
-    lista_pacientes = Paciente.objects.all()
-    lista_medicos = Medico.objects.all()
+    # Es Paciente -> Ve SOLO SUYO
+    else:
+        try:
+            # Buscamos la ficha de paciente de este usuario logueado
+            paciente_actual = request.user.paciente 
+            lista_citas = Cita.objects.filter(paciente=paciente_actual).order_by('fecha_hora')
+        except:
+            lista_citas = [] # Si no tiene perfil de paciente, no ve citas
+
+    lista_pacientes = Paciente.objects.all().order_by('nombre')
+    lista_medicos = Medico.objects.all().order_by('nombre')
 
     contexto = {
         'citas': lista_citas,
@@ -48,33 +57,30 @@ def registrar_paciente(request):
 def agendar_cita(request):
     if request.method == 'POST':
         try:
-            # Obtener los datos del formulario 
-            paciente_id = request.POST.get('cita-paciente-id')
             medico_id = request.POST.get('cita-medico-id')
             fecha = request.POST.get('cita-fecha')
             motivo = request.POST.get('cita-motivo')
-
-            #  Buscar las instancias de Paciente y Medico en la BD
-            # (Django necesita los objetos reales, no solo los números de ID)
-            paciente_obj = Paciente.objects.get(id=paciente_id)
             medico_obj = Medico.objects.get(id=medico_id)
 
-            # Crear la Cita
+            # LÓGICA INTELIGENTE:
+            if request.user.is_staff:
+                # Si es Admin, usa el ID que escribió en el formulario
+                paciente_id = request.POST.get('cita-paciente-id')
+                paciente_obj = Paciente.objects.get(id=paciente_id)
+            else:
+                # Si es Paciente, usa SU PROPIO perfil
+                paciente_obj = request.user.paciente
+
             Cita.objects.create(
                 paciente=paciente_obj,
                 medico=medico_obj,
                 fecha_hora=fecha,
                 motivo=motivo
             )
-            print("--> ¡Cita agendada EXITOSAMENTE!")
-            return redirect('inicio')
-
-        except Paciente.DoesNotExist:
-            return HttpResponse("Error: El ID del paciente no existe.")
-        except Medico.DoesNotExist:
-            return HttpResponse("Error: El ID del médico no existe.")
         except Exception as e:
-            return HttpResponse(f"Error al agendar cita: {e}")
+            return HttpResponse(f"Error: {e}")
+            
+    return redirect('inicio')
 
     return redirect('inicio')
 
@@ -94,11 +100,45 @@ def registrar_medico(request):
             
     return redirect('inicio')
 
+
+
 def eliminar_cita(request, id):
     try:
-        # Busca la cita por su ID y la borra
+        # Busca la cita con ese ID exacto
         cita = Cita.objects.get(id=id)
+        # La borra de la base de datos
         cita.delete()
-    except:
-        pass # Si no existe, no hace nada
+    except Cita.DoesNotExist:
+        pass # Si no existe, no hace nada (evita errores)
+    
+    # Vuelve a cargar la página principal
     return redirect('inicio')
+
+
+
+def editar_cita(request, id):
+    cita = Cita.objects.get(id=id)
+    
+    # Si el usuario guardó el formulario
+    if request.method == 'POST':
+        cita.paciente_id = request.POST.get('cita-paciente-id')
+        cita.medico_id = request.POST.get('cita-medico-id')
+        cita.fecha_hora = request.POST.get('cita-fecha')
+        cita.motivo = request.POST.get('cita-motivo')
+        cita.save() # Guardamos los cambios
+        return redirect('inicio')
+    
+    # Si el usuario solo entró a ver el formulario
+    medicos = Medico.objects.all()
+    pacientes = Paciente.objects.all()
+    
+    # Formatear fecha para que el input HTML la entienda (YYYY-MM-DDTHH:MM)
+    fecha_formato = cita.fecha_hora.strftime('%Y-%m-%dT%H:%M')
+    
+    contexto = {
+        'cita': cita,
+        'medicos': medicos,
+        'pacientes': pacientes,
+        'fecha_formateada': fecha_formato
+    }
+    return render(request, 'editar_cita.html', contexto)

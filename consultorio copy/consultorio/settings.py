@@ -133,12 +133,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login/'
 
-# ... al final del archivo settings.py ...
-
-# Si alguien intenta entrar sin permiso, mándalo aquí:
-LOGIN_URL = '/login/'
-
-# Después de loguearse exitosamente, mándalo a la página principal:
-LOGIN_REDIRECT_URL = '/'

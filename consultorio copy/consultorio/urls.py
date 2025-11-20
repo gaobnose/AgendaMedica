@@ -20,12 +20,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from usuarios.views import pagina_login # Importar la vista
+from usuarios.views import pagina_login, pagina_registro # Importar la vista
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('agenda.urls')),
-    
-    # Nueva ruta para el login
     path('login/', pagina_login, name='login'),
+    path('registro/', pagina_registro, name='registro'),
 ]
