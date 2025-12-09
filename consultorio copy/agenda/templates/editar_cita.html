@@ -1,62 +1,120 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Cita</title>
+    <title>Editar Cita | Sigma Cita</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-violet-100">
-        <div class="bg-violet-600 p-6 text-white flex justify-between items-center">
-            <h2 class="text-2xl font-bold">Editar Cita #{{ cita.id }}</h2>
-            <a href="{% url 'inicio' %}" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></a>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Animación Pop In con rebote suave */
+        .animate-pop-in {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4 selection:bg-fuchsia-200 selection:text-fuchsia-900">
+
+    <div class="animate-pop-in bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl shadow-violet-200/50 max-w-lg w-full overflow-hidden border border-white relative">
+        
+        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white/50">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-violet-100 to-fuchsia-100 p-3 rounded-2xl text-violet-600 shadow-inner">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800 tracking-tight">Editar Cita</h2>
+                    <p class="text-xs text-violet-500 font-bold bg-violet-50 inline-block px-2 py-0.5 rounded-full mt-1">ID: #{{ cita.id }}</p>
+                </div>
+            </div>
+            <a href="{% url 'inicio' %}" class="group p-2 rounded-xl hover:bg-slate-100 transition-colors">
+                <i data-lucide="x" class="w-6 h-6 text-slate-400 group-hover:text-red-500 transition-colors"></i>
+            </a>
         </div>
 
-        <form method="POST" class="p-8 space-y-5">
+        <form method="POST" class="p-8 space-y-6">
             {% csrf_token %}
             
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Paciente</label>
-                    <select name="cita-paciente-id" class="w-full p-2 border rounded bg-white">
-                        {% for p in pacientes %}
-                        <option value="{{ p.id }}" {% if p.id == cita.paciente.id %}selected{% endif %}>
-                            {{ p.nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Paciente</label>
+                    <div class="relative group">
+                        <i data-lucide="user" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                        <select name="cita-paciente-id" class="w-full pl-10 pr-8 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all appearance-none cursor-pointer text-slate-700 font-semibold shadow-sm">
+                            {% for p in pacientes %}
+                            <option value="{{ p.id }}" {% if p.id == cita.paciente.id %}selected{% endif %}>
+                                {{ p.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-3.5 top-4 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Médico</label>
-                    <select name="cita-medico-id" class="w-full p-2 border rounded bg-white">
-                        {% for m in medicos %}
-                        <option value="{{ m.id }}" {% if m.id == cita.medico.id %}selected{% endif %}>
-                            {{ m.nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
+
+                <div class="space-y-2">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Médico</label>
+                    <div class="relative group">
+                        <i data-lucide="stethoscope" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                        <select name="cita-medico-id" class="w-full pl-10 pr-8 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all appearance-none cursor-pointer text-slate-700 font-semibold shadow-sm">
+                            {% for m in medicos %}
+                            <option value="{{ m.id }}" {% if m.id == cita.medico.id %}selected{% endif %}>
+                                {{ m.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-3.5 top-4 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Fecha y Hora</label>
-                <input type="datetime-local" name="cita-fecha" value="{{ fecha_formateada }}" class="w-full p-2 border rounded focus:ring-2 focus:ring-violet-500">
+            <div class="space-y-2">
+                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Fecha y Hora</label>
+                <div class="relative group">
+                    <i data-lucide="calendar-clock" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                    <input type="datetime-local" name="cita-fecha" value="{{ fecha_formateada }}" 
+                        class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all text-slate-700 font-medium shadow-sm cursor-pointer">
+                </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Motivo</label>
-                <textarea name="cita-motivo" rows="3" class="w-full p-2 border rounded focus:ring-2 focus:ring-violet-500">{{ cita.motivo }}</textarea>
+            <div class="space-y-2">
+                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Motivo</label>
+                <div class="relative group">
+                    <i data-lucide="file-edit" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                    <textarea name="cita-motivo" rows="4" 
+                        class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all resize-none text-slate-600 leading-relaxed shadow-sm">{{ cita.motivo }}</textarea>
+                </div>
             </div>
 
-            <div class="flex gap-3 pt-4">
-                <a href="{% url 'inicio' %}" class="flex-1 py-3 text-center border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</a>
-                <button type="submit" class="flex-1 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 font-bold">Guardar Cambios</button>
+            <div class="flex items-center gap-4 pt-4 border-t border-slate-100">
+                <a href="{% url 'inicio' %}" class="flex-1 py-3.5 px-4 text-center text-sm font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-2xl transition-all">
+                    Cancelar
+                </a>
+                
+                <button type="submit" class="flex-[2] py-3.5 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold rounded-2xl shadow-lg shadow-violet-200 transition-all transform hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    Guardar Cambios
+                </button>
             </div>
         </form>
     </div>
-    <script>lucide.createIcons();</script>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
