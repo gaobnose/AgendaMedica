@@ -167,6 +167,7 @@ def eliminar_cita(request, id):
     return redirect('inicio')
 
 def editar_cita(request, id):
+   
     try:
         cita = Cita.objects.get(id=id)
     except Cita.DoesNotExist:
@@ -175,15 +176,47 @@ def editar_cita(request, id):
     
     if request.method == 'POST':
         try:
-            cita.paciente_id = request.POST.get('cita-paciente-id')
-            cita.medico_id = request.POST.get('cita-medico-id')
-            cita.fecha_hora = request.POST.get('cita-fecha')
-            cita.motivo = request.POST.get('cita-motivo')
+            paciente_id = request.POST.get('cita-paciente-id')
+            medico_id = request.POST.get('cita-medico-id')
+            fecha_hora_str = request.POST.get('cita-fecha')
+            motivo = request.POST.get('cita-motivo')
+
+           
+            if not fecha_hora_str:
+                messages.error(request, "Debes seleccionar una fecha y hora.")
+                return redirect('editar_cita', id=id)
+
+            try:
+                fecha_hora_obj = datetime.strptime(fecha_hora_str, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                messages.error(request, "Formato de fecha inválido.")
+                return redirect('editar_cita', id=id)
+
+            ahora = datetime.now()
+            if fecha_hora_obj < ahora:
+                messages.error(request, "No puedes mover una cita al pasado.")
+                return redirect('editar_cita', id=id)
+
+            hora_cita = fecha_hora_obj.time()
+            hora_apertura = time(6, 0)
+            hora_cierre = time(20, 0)
+
+            if not (hora_apertura <= hora_cita <= hora_cierre):
+                messages.error(request, "El consultorio atiende solo de 06:00 AM a 08:00 PM.")
+                return redirect('editar_cita', id=id)
+
+            cita.paciente_id = paciente_id
+            cita.medico_id = medico_id
+            cita.fecha_hora = fecha_hora_obj 
+            cita.motivo = motivo
             cita.save()
+            
             messages.success(request, "Cita actualizada correctamente.")
             return redirect('inicio')
+
         except Exception as e:
              messages.error(request, f"Error al editar: {e}")
+             return redirect('editar_cita', id=id)
 
     medicos = Medico.objects.all().order_by('nombre')
     pacientes = Paciente.objects.all().order_by('nombre')

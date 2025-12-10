@@ -13,7 +13,6 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
 
-        /* Animación Pop In con rebote suave */
         .animate-pop-in {
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             opacity: 0;
@@ -47,7 +46,7 @@
             </a>
         </div>
 
-        <form method="POST" class="p-8 space-y-6">
+        <form id="form-editar" method="POST" class="p-8 space-y-6" onsubmit="return validarEdicion(event)">
             {% csrf_token %}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -86,9 +85,13 @@
                 <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Fecha y Hora</label>
                 <div class="relative group">
                     <i data-lucide="calendar-clock" class="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
-                    <input type="datetime-local" name="cita-fecha" value="{{ fecha_formateada }}" 
+                    <input type="datetime-local" id="fecha-editar" name="cita-fecha" value="{{ fecha_formateada }}" 
                         class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all text-slate-700 font-medium shadow-sm cursor-pointer">
                 </div>
+                <p id="error-editar" class="text-red-500 text-xs mt-2 font-bold hidden flex items-center gap-1">
+                    <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                    No puedes mover la cita al pasado.
+                </p>
             </div>
 
             <div class="space-y-2">
@@ -115,6 +118,29 @@
 
     <script>
         lucide.createIcons();
+
+        function validarEdicion(event) {
+            const input = document.getElementById('fecha-editar');
+            const mensaje = document.getElementById('error-editar');
+            
+            if (!input.value) return; 
+
+            const fechaUsuario = new Date(input.value);
+            const fechaActual = new Date();
+
+            if (fechaUsuario < fechaActual) {
+                event.preventDefault(); 
+                mensaje.classList.remove('hidden'); 
+                input.classList.add('border-red-500', 'bg-red-50'); 
+                input.classList.remove('border-slate-200', 'bg-slate-50');
+                return false;
+            } else {
+                mensaje.classList.add('hidden');
+                input.classList.remove('border-red-500', 'bg-red-50');
+                input.classList.add('border-slate-200', 'bg-slate-50');
+                return true;
+            }
+        }
     </script>
 </body>
 </html>

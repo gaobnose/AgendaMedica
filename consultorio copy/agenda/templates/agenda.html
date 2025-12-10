@@ -67,7 +67,7 @@
                 <span
                     class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Paciente</span>
                 {% endif %}
-                <a href="/logout/" class="text-slate-500 hover:text-red-500 transition-colors"><i data-lucide="log-out"
+                <a href="{% url 'logout' %}" class="text-slate-500 hover:text-red-500 transition-colors"><i data-lucide="log-out"
                         class="w-5 h-5"></i></a>
             </div>
         </div>
