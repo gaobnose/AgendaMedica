@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from datetime import datetime, time
 from .models import Paciente, Medico, Cita
 import re
 
@@ -126,36 +127,73 @@ def registrar_medico(request):
 
 
 def agendar_cita(request):
-    if request.method == 'POST':
-        try:
-            medico_id = request.POST.get('cita-medico-id')
-            fecha = request.POST.get('cita-fecha')
-            motivo = request.POST.get('cita-motivo')
-            
-            medico_obj = Medico.objects.get(id=medico_id)
+    if request.method == "POST":
+        # 1. Obtener los datos usando los 'name' exactos de tu HTML
+        fecha_hora_str = request.POST.get("cita-fecha")   # Viene como "YYYY-MM-DDTHH:MM"
+        motivo = request.POST.get("cita-motivo")
+        medico_id = request.POST.get("cita-medico-id")
+        
+        # Lógica para obtener el paciente:
+        # Si es admin (staff), toma el ID del input. Si es usuario normal, es él mismo.
+        if request.user.is_staff:
+            paciente_id = request.POST.get("cita-paciente-id")
+        else:
+            # Asumimos que el usuario logueado tiene un perfil de paciente
+            try:
+                paciente_id = request.user.paciente.id 
+            except AttributeError:
+                messages.error(request, "Tu usuario no tiene un perfil de paciente asociado.")
+                return redirect('inicio')
 
-            if request.user.is_staff:
-                paciente_id = request.POST.get('cita-paciente-id')
-                paciente_obj = Paciente.objects.get(id=paciente_id)
-            else:
-                # Si no es staff, asumimos que es el paciente logueado
-                try:
-                    paciente_obj = request.user.paciente
-                except:
-                    messages.error(request, "Error: Tu usuario no tiene un perfil de paciente asociado.")
-                    return redirect('inicio')
+        # 2. Validar que la fecha no venga vacía
+        if not fecha_hora_str:
+            messages.error(request, "Debes seleccionar una fecha y hora.")
+            return redirect("inicio")
+
+        try:
+            # 3. Convertir el formato de datetime-local (tiene una 'T' en medio)
+            fecha_hora_obj = datetime.strptime(fecha_hora_str, "%Y-%m-%dT%H:%M")
+            
+        except ValueError:
+            messages.error(request, "Formato de fecha inválido.")
+            return redirect("inicio")
+
+        # 4. Validaciones de negocio
+        ahora = datetime.now()
+
+        # A) Que no sea fecha pasada
+        if fecha_hora_obj < ahora:
+            messages.error(request, "No puedes agendar citas en el pasado.")
+            return redirect("inicio")
+
+        # B) Horario de atención (06:00 a 20:00)
+        hora_cita = fecha_hora_obj.time()
+        hora_apertura = time(6, 0)
+        hora_cierre = time(20, 0)
+
+        if not (hora_apertura <= hora_cita <= hora_cierre):
+            messages.error(request, "El consultorio atiende solo de 06:00 AM a 08:00 PM.")
+            return redirect("inicio")
+
+        # 5. Crear la cita
+        try:
+            # Buscamos las instancias de Paciente y Medico para asegurarnos que existen
+            paciente_obj = get_object_or_404(Paciente, id=paciente_id)
+            medico_obj = get_object_or_404(Medico, id=medico_id)
 
             Cita.objects.create(
                 paciente=paciente_obj,
                 medico=medico_obj,
-                fecha_hora=fecha,
+                fecha_hora=fecha_hora_obj, # Guardamos el objeto datetime completo
                 motivo=motivo
             )
             messages.success(request, "Cita agendada correctamente.")
             
         except Exception as e:
-            messages.error(request, f"No se pudo agendar la cita: {e}")
-            
+            messages.error(request, f"Error al guardar la cita: {e}")
+
+        return redirect("inicio")
+
     return redirect('inicio')
 
 

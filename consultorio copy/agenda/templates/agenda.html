@@ -6,48 +6,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Médico - Sigma Cita</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         /* Animación suave para cambio de pestañas */
         .tab-content {
             display: none;
             animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .tab-content.active {
             display: block;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
-            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+                filter: blur(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
         }
 
         /* Estilo para la pestaña activa con toque pastel */
         .tab-btn.active {
-            color: #7c3aed; /* violet-600 */
+            color: #7c3aed;
+            /* violet-600 */
             border-bottom-color: #7c3aed;
-            background: linear-gradient(to bottom, transparent, #f5f3ff); /* Degradado sutil */
+            background: linear-gradient(to bottom, transparent, #f5f3ff);
+            /* Degradado sutil */
         }
-        
+
         /* Scrollbar personalizada suave para listas verticales */
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #d8b4fe;
             border-radius: 10px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #c084fc;
         }
@@ -56,32 +77,42 @@
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
+
         .scrollbar-hide {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-sky-50 via-violet-50 to-fuchsia-50 text-slate-800 antialiased relative flex flex-col selection:bg-fuchsia-200 selection:text-fuchsia-900">
+<body
+    class="min-h-screen bg-gradient-to-br from-sky-50 via-violet-50 to-fuchsia-50 text-slate-800 antialiased relative flex flex-col selection:bg-fuchsia-200 selection:text-fuchsia-900">
 
-    <nav class="sticky top-0 z-40 bg-white/70 backdrop-blur-lg border-b border-white/50 shadow-sm transition-all duration-300">
+    <nav
+        class="sticky top-0 z-40 bg-white/70 backdrop-blur-lg border-b border-white/50 shadow-sm transition-all duration-300">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-3">
-                    <span class="text-xl font-bold tracking-tight text-slate-900">Sigma<span class="text-violet-600">Cita</span></span>
+                    <span class="text-xl font-bold tracking-tight text-slate-900">Sigma<span
+                            class="text-violet-600">Cita</span></span>
                 </div>
 
                 <div class="flex items-center gap-4">
                     <div class="hidden md:flex flex-col items-end border-r border-slate-200 pr-4 mr-2">
                         <span class="text-sm font-semibold text-slate-700">{{ user.username|default:"Usuario" }}</span>
                         {% if user.is_staff %}
-                            <span class="text-[10px] uppercase font-bold text-violet-700 bg-violet-100 px-2 py-0.5 rounded-full ring-1 ring-violet-200">Admin</span>
+                        <span
+                            class="text-[10px] uppercase font-bold text-violet-700 bg-violet-100 px-2 py-0.5 rounded-full ring-1 ring-violet-200">Admin</span>
                         {% else %}
-                            <span class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full ring-1 ring-emerald-200">Paciente</span>
+                        <span
+                            class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full ring-1 ring-emerald-200">Paciente</span>
                         {% endif %}
                     </div>
-                    <a href="/login/" class="text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all p-2 rounded-xl" title="Cerrar Sesión">
+                    <a href="/login/"
+                        class="text-slate-500 hover:text-red-500 hover:bg-red-50 transition-all p-2 rounded-xl"
+                        title="Cerrar Sesión">
                         <i data-lucide="log-out" class="w-5 h-5"></i>
                     </a>
                 </div>
@@ -99,7 +130,8 @@
                 {% elif 'success' in message.tags %} border-l-4 border-l-emerald-400 text-emerald-800 shadow-emerald-100
                 {% else %} border-l-4 border-l-blue-400 text-blue-800 shadow-blue-100 {% endif %}">
                 <span class="font-medium ml-2">{{ message }}</span>
-                <button type="button" class="ml-auto opacity-50 hover:opacity-100 transition-opacity" onclick="this.parentElement.remove()">
+                <button type="button" class="ml-auto opacity-50 hover:opacity-100 transition-opacity"
+                    onclick="this.parentElement.remove()">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -107,21 +139,27 @@
         </div>
         {% endif %}
 
-        <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-violet-100/50 border border-white overflow-hidden">
+        <div
+            class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-violet-100/50 border border-white overflow-hidden">
             <div class="flex overflow-x-auto border-b border-slate-100 scrollbar-hide bg-slate-50/50">
-                <button onclick="switchTab('tab-agendar')" id="btn-tab-agendar" class="tab-btn active flex items-center gap-2 px-6 py-4 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-violet-600 transition-all flex-shrink-0">
+                <button onclick="switchTab('tab-agendar')" id="btn-tab-agendar"
+                    class="tab-btn active flex items-center gap-2 px-6 py-4 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-violet-600 transition-all flex-shrink-0">
                     <i data-lucide="calendar-plus" class="w-4 h-4"></i>
                     Agendar Hora
                 </button>
 
-                <button onclick="switchTab('tab-historial')" id="btn-tab-historial" class="tab-btn flex items-center gap-2 px-6 py-4 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-violet-600 transition-all flex-shrink-0">
+                <button onclick="switchTab('tab-historial')" id="btn-tab-historial"
+                    class="tab-btn flex items-center gap-2 px-6 py-4 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-violet-600 transition-all flex-shrink-0">
                     <i data-lucide="history" class="w-4 h-4"></i>
                     Historial de Citas
-                    <span class="ml-2 bg-violet-100 text-violet-700 text-xs py-0.5 px-2 rounded-full font-extrabold shadow-sm">{{ citas|length }}</span>
+                    <span
+                        class="ml-2 bg-violet-100 text-violet-700 text-xs py-0.5 px-2 rounded-full font-extrabold shadow-sm">{{
+                        citas.count }}</span>
                 </button>
 
                 {% if user.is_staff %}
-                <button onclick="switchTab('tab-admin')" id="btn-tab-admin" class="tab-btn flex items-center gap-2 px-6 py-4 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-violet-600 transition-all flex-shrink-0 ml-auto md:ml-0 border-l border-slate-100">
+                <button onclick="switchTab('tab-admin')" id="btn-tab-admin"
+                    class="tab-btn flex items-center gap-2 px-6 py-4 text-sm font-bold text-slate-500 border-b-2 border-transparent hover:text-violet-600 transition-all flex-shrink-0 ml-auto md:ml-0 border-l border-slate-100">
                     <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
                     Administración
                 </button>
@@ -133,7 +171,8 @@
                 <div id="tab-agendar" class="tab-content active">
                     <div class="max-w-2xl mx-auto">
                         <div class="text-center mb-10">
-                            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-violet-100 text-violet-600 mb-4 shadow-sm">
+                            <div
+                                class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-violet-100 text-violet-600 mb-4 shadow-sm">
                                 <i data-lucide="sparkles" class="w-6 h-6"></i>
                             </div>
                             <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Reservar tu Cita</h2>
@@ -142,53 +181,62 @@
 
                         <form method="POST" action="{% url 'agendar_cita' %}" class="space-y-6">
                             {% csrf_token %}
-                            
+
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Paciente</label>
+                                <label
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Paciente</label>
                                 {% if user.is_staff %}
-                                    <div class="relative group">
-                                        <i data-lucide="search" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
-                                        <input type="number" name="cita-paciente-id" required placeholder="Buscar ID..."
-                                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all placeholder:text-slate-400">
-                                    </div>
+                                <div class="relative group">
+                                    <i data-lucide="search"
+                                        class="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                                    <input type="number" name="cita-paciente-id" required placeholder="Buscar ID..."
+                                        class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all placeholder:text-slate-400">
+                                </div>
                                 {% else %}
-                                    <div class="w-full p-3 border border-slate-100 rounded-2xl bg-gradient-to-r from-violet-50 to-white text-slate-700 flex items-center gap-4 shadow-sm">
-                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-violet-600 shadow-sm border border-violet-100">
-                                            <i data-lucide="user" class="w-5 h-5"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-slate-800">{{ user.username }}</p>
-                                            <p class="text-xs text-violet-500 font-medium flex items-center gap-1">
-                                                <i data-lucide="verified" class="w-3 h-3"></i> Cuenta Verificada
-                                            </p>
-                                        </div>
+                                <div
+                                    class="w-full p-3 border border-slate-100 rounded-2xl bg-gradient-to-r from-violet-50 to-white text-slate-700 flex items-center gap-4 shadow-sm">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-violet-600 shadow-sm border border-violet-100">
+                                        <i data-lucide="user" class="w-5 h-5"></i>
                                     </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-800">{{ user.username }}</p>
+                                        <p class="text-xs text-violet-500 font-medium flex items-center gap-1">
+                                            <i data-lucide="verified" class="w-3 h-3"></i> Cuenta Verificada
+                                        </p>
+                                    </div>
+                                </div>
                                 {% endif %}
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-2">
-                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">ID Médico</label>
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">ID
+                                        Médico</label>
                                     <div class="relative group">
-                                        <i data-lucide="stethoscope" class="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
+                                        <i data-lucide="stethoscope"
+                                            class="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-violet-500 transition-colors"></i>
                                         <input type="number" name="cita-medico-id" required placeholder="Ej: 105"
                                             class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all placeholder:text-slate-400">
                                     </div>
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Fecha</label>
+                                    <label
+                                        class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Fecha</label>
                                     <input type="datetime-local" name="cita-fecha" required
                                         class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all text-slate-600 cursor-pointer">
                                 </div>
                             </div>
 
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Motivo</label>
+                                <label
+                                    class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Motivo</label>
                                 <textarea name="cita-motivo" rows="3" placeholder="Describe brevemente los síntomas..."
                                     class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-violet-100 focus:border-violet-300 outline-none transition-all resize-none placeholder:text-slate-400"></textarea>
                             </div>
 
-                            <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm hover:bg-violet-600 hover:shadow-lg hover:shadow-violet-200 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex justify-center items-center gap-2">
+                            <button type="submit"
+                                class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm hover:bg-violet-600 hover:shadow-lg hover:shadow-violet-200 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex justify-center items-center gap-2">
                                 Confirmar Cita <i data-lucide="arrow-right" class="w-4 h-4"></i>
                             </button>
                         </form>
@@ -207,7 +255,8 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase text-xs tracking-wider">
                                 <tr>
-                                    <th class="p-4">ID</th> <th class="p-4">Fecha</th>
+                                    <th class="p-4">ID</th>
+                                    <th class="p-4">Fecha</th>
                                     <th class="p-4">Paciente</th>
                                     <th class="p-4">Médico</th>
                                     <th class="p-4">Motivo</th>
@@ -225,24 +274,32 @@
                                         </div>
                                     </td>
                                     <td class="p-4 text-slate-600 font-medium">
-                                        <span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg text-xs font-bold border border-emerald-100">
+                                        <span
+                                            class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg text-xs font-bold border border-emerald-100">
                                             {{ c.paciente.nombre }}
                                         </span>
                                     </td>
                                     <td class="p-4 text-slate-600">
-                                        <span class="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg text-xs font-bold border border-blue-100">
+                                        <span
+                                            class="bg-blue-50 text-blue-700 px-2 py-1 rounded-lg text-xs font-bold border border-blue-100">
                                             Dr. {{ c.medico.nombre }}
                                         </span>
                                     </td>
                                     <td class="p-4 text-slate-400 italic truncate max-w-[150px]">{{ c.motivo }}</td>
-                                    
+
                                     {% if user.is_staff %}
                                     <td class="p-4 text-right">
-                                        <div class="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                            <a href="{% url 'editar_cita' c.id %}" class="p-2 bg-sky-50 text-sky-600 rounded-xl hover:bg-sky-500 hover:text-white transition-all shadow-sm border border-sky-100" title="Editar">
+                                        <div
+                                            class="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                            <a href="{% url 'editar_cita' c.id %}"
+                                                class="p-2 bg-sky-50 text-sky-600 rounded-xl hover:bg-sky-500 hover:text-white transition-all shadow-sm border border-sky-100"
+                                                title="Editar">
                                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                                             </a>
-                                            <a href="{% url 'eliminar_cita' c.id %}" onclick="return confirm('¿Eliminar cita?');" class="p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-rose-100" title="Eliminar">
+                                            <a href="{% url 'eliminar_cita' c.id %}"
+                                                onclick="return confirm('¿Eliminar cita?');"
+                                                class="p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-rose-100"
+                                                title="Eliminar">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                                             </a>
                                         </div>
@@ -253,7 +310,8 @@
                                 <tr>
                                     <td colspan="6" class="p-16 text-center">
                                         <div class="flex flex-col items-center justify-center opacity-40">
-                                            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                                            <div
+                                                class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-3">
                                                 <i data-lucide="calendar" class="w-8 h-8 text-slate-400"></i>
                                             </div>
                                             <p class="text-slate-500 font-medium">No tienes citas próximas</p>
@@ -269,26 +327,37 @@
                 {% if user.is_staff %}
                 <div id="tab-admin" class="tab-content">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        
+
                         <div class="space-y-4">
                             <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-100">
-                                <div class="bg-emerald-100 p-2.5 rounded-xl text-emerald-600 shadow-sm"><i data-lucide="user-plus" class="w-5 h-5"></i></div>
+                                <div class="bg-emerald-100 p-2.5 rounded-xl text-emerald-600 shadow-sm"><i
+                                        data-lucide="user-plus" class="w-5 h-5"></i></div>
                                 <h3 class="font-bold text-slate-800">Registrar Paciente</h3>
                             </div>
-                            <form method="POST" action="{% url 'registrar_paciente' %}" class="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 space-y-4">
+                            <form method="POST" action="{% url 'registrar_paciente' %}"
+                                class="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100 space-y-4">
                                 {% csrf_token %}
-                                <input type="text" name="paciente-nombre" placeholder="Nombre Completo" required class="w-full p-3 rounded-xl border border-emerald-200/60 bg-white text-sm focus:ring-2 focus:ring-emerald-400 outline-none">
-                                <input type="date" name="paciente-fecha-nac" class="w-full p-3 rounded-xl border border-emerald-200/60 bg-white text-sm text-slate-500 outline-none">
-                                <input type="tel" name="paciente-telefono" placeholder="Teléfono" class="w-full p-3 rounded-xl border border-emerald-200/60 bg-white text-sm outline-none">
-                                <button type="submit" class="w-full bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition-all transform active:scale-95">Guardar Paciente</button>
+                                <input type="text" name="paciente-nombre" placeholder="Nombre Completo" required
+                                    class="w-full p-3 rounded-xl border border-emerald-200/60 bg-white text-sm focus:ring-2 focus:ring-emerald-400 outline-none">
+                                <input type="date" name="paciente-fecha-nac"
+                                    class="w-full p-3 rounded-xl border border-emerald-200/60 bg-white text-sm text-slate-500 outline-none">
+                                <input type="tel" name="paciente-telefono" placeholder="Teléfono"
+                                    class="w-full p-3 rounded-xl border border-emerald-200/60 bg-white text-sm outline-none">
+                                <button type="submit"
+                                    class="w-full bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-200 transition-all transform active:scale-95">Guardar
+                                    Paciente</button>
                             </form>
-                            
-                            <div class="bg-white border border-slate-100 rounded-2xl p-4 max-h-48 overflow-y-auto custom-scrollbar shadow-sm">
-                                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Últimos Pacientes</h4>
+
+                            <div
+                                class="bg-white border border-slate-100 rounded-2xl p-4 max-h-48 overflow-y-auto custom-scrollbar shadow-sm">
+                                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Últimos
+                                    Pacientes</h4>
                                 {% for p in pacientes %}
-                                <div class="flex justify-between text-xs py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 rounded-lg transition-colors">
+                                <div
+                                    class="flex justify-between text-xs py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 rounded-lg transition-colors">
                                     <span class="text-slate-600 font-medium">{{ p.nombre }}</span>
-                                    <span class="text-slate-400 font-mono bg-slate-100 px-1.5 rounded">#{{ p.id }}</span>
+                                    <span class="text-slate-400 font-mono bg-slate-100 px-1.5 rounded">#{{ p.id
+                                        }}</span>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -296,22 +365,33 @@
 
                         <div class="space-y-4">
                             <div class="flex items-center gap-3 mb-4 pb-2 border-b border-slate-100">
-                                <div class="bg-blue-100 p-2.5 rounded-xl text-blue-600 shadow-sm"><i data-lucide="stethoscope" class="w-5 h-5"></i></div>
+                                <div class="bg-blue-100 p-2.5 rounded-xl text-blue-600 shadow-sm"><i
+                                        data-lucide="stethoscope" class="w-5 h-5"></i></div>
                                 <h3 class="font-bold text-slate-800">Registrar Médico</h3>
                             </div>
-                            <form method="POST" action="{% url 'registrar_medico' %}" class="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 space-y-4">
+                            <form method="POST" action="{% url 'registrar_medico' %}"
+                                class="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 space-y-4">
                                 {% csrf_token %}
-                                <input type="text" name="medico-nombre" placeholder="Nombre del Médico" required class="w-full p-3 rounded-xl border border-blue-200/60 bg-white text-sm focus:ring-2 focus:ring-blue-400 outline-none">
-                                <input type="text" name="medico-especialidad" placeholder="Especialidad" class="w-full p-3 rounded-xl border border-blue-200/60 bg-white text-sm outline-none">
-                                <button type="submit" class="w-full bg-blue-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-blue-600 shadow-lg shadow-blue-200 transition-all transform active:scale-95">Guardar Médico</button>
+                                <input type="text" name="medico-nombre" placeholder="Nombre del Médico" required
+                                    class="w-full p-3 rounded-xl border border-blue-200/60 bg-white text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+                                <input type="text" name="medico-especialidad" placeholder="Especialidad"
+                                    class="w-full p-3 rounded-xl border border-blue-200/60 bg-white text-sm outline-none">
+                                <button type="submit"
+                                    class="w-full bg-blue-500 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-blue-600 shadow-lg shadow-blue-200 transition-all transform active:scale-95">Guardar
+                                    Médico</button>
                             </form>
 
-                            <div class="bg-white border border-slate-100 rounded-2xl p-4 max-h-48 overflow-y-auto custom-scrollbar shadow-sm">
-                                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Staff Médico</h4>
+                            <div
+                                class="bg-white border border-slate-100 rounded-2xl p-4 max-h-48 overflow-y-auto custom-scrollbar shadow-sm">
+                                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Staff
+                                    Médico</h4>
                                 {% for m in medicos %}
-                                <div class="flex justify-between text-xs py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 rounded-lg transition-colors">
+                                <div
+                                    class="flex justify-between text-xs py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 rounded-lg transition-colors">
                                     <span class="text-slate-600 font-medium">{{ m.nombre }}</span>
-                                    <span class="text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-md text-[10px]">{{ m.especialidad }}</span>
+                                    <span
+                                        class="text-blue-500 font-bold bg-blue-50 px-2 py-0.5 rounded-md text-[10px]">{{
+                                        m.especialidad }}</span>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -326,7 +406,7 @@
 
     </main>
 
-    <button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" 
+    <button id="scrollToTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'});"
         class="fixed bottom-6 right-6 z-50 p-3 bg-slate-900 text-white rounded-full shadow-2xl shadow-violet-900/20 opacity-0 transition-all duration-300 hover:bg-violet-600 hover:-translate-y-1 translate-y-10">
         <i data-lucide="arrow-up" class="w-5 h-5"></i>
     </button>
@@ -334,39 +414,49 @@
     <footer class="bg-slate-900 text-slate-300 mt-16 print:hidden border-t border-slate-800">
         <div class="max-w-6xl mx-auto px-4 py-12">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                
+
                 <div class="space-y-4">
                     <h3 class="text-white text-lg font-bold flex items-center gap-2">
                         <i data-lucide="flask-conical" class="w-5 h-5 text-violet-400"></i>
                         Centro Sigma Cita
                     </h3>
                     <p class="text-sm leading-relaxed text-slate-400">
-                        Comprometidos con tu bienestar. Ofrecemos atención médica de calidad con los mejores especialistas y tecnología de vanguardia.
+                        Comprometidos con tu bienestar. Ofrecemos atención médica de calidad con los mejores
+                        especialistas y tecnología de vanguardia.
                     </p>
                 </div>
 
                 <div>
                     <h3 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Enlaces Rápidos</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{% url 'inicio' %}" class="hover:text-violet-400 transition-colors flex items-center gap-2"><span class="text-violet-500 font-bold">&rsaquo;</span> Inicio</a></li>
-                        <li><a href="#" class="hover:text-violet-400 transition-colors flex items-center gap-2"><span class="text-violet-500 font-bold">&rsaquo;</span> Nuestros Médicos</a></li>
-                        <li><a href="#" class="hover:text-violet-400 transition-colors flex items-center gap-2"><span class="text-violet-500 font-bold">&rsaquo;</span> Solicitar Cita</a></li>
+                        <li><a href="{% url 'inicio' %}"
+                                class="hover:text-violet-400 transition-colors flex items-center gap-2"><span
+                                    class="text-violet-500 font-bold">&rsaquo;</span> Inicio</a></li>
+                        <li><a href="#" class="hover:text-violet-400 transition-colors flex items-center gap-2"><span
+                                    class="text-violet-500 font-bold">&rsaquo;</span> Nuestros Médicos</a></li>
+                        <li><a href="#" class="hover:text-violet-400 transition-colors flex items-center gap-2"><span
+                                    class="text-violet-500 font-bold">&rsaquo;</span> Solicitar Cita</a></li>
                     </ul>
                 </div>
 
                 <div>
                     <h3 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Contacto</h3>
                     <ul class="space-y-4 text-sm">
-                        <li class="flex items-start gap-3"><i data-lucide="map-pin" class="w-5 h-5 text-violet-500 mt-0.5"></i><span>Av. Siempre Sigma 742,<br>Santiago, Chile</span></li>
-                        <li class="flex items-center gap-3"><i data-lucide="phone" class="w-5 h-5 text-violet-500"></i><span>+56 2 2345 6789</span></li>
-                        <li class="flex items-center gap-3"><i data-lucide="mail" class="w-5 h-5 text-violet-500"></i><span>contacto@sigmacita.cl</span></li>
+                        <li class="flex items-start gap-3"><i data-lucide="map-pin"
+                                class="w-5 h-5 text-violet-500 mt-0.5"></i><span>Av. Siempre Sigma 742,<br>Santiago,
+                                Chile</span></li>
+                        <li class="flex items-center gap-3"><i data-lucide="phone"
+                                class="w-5 h-5 text-violet-500"></i><span>+56 2 2345 6789</span></li>
+                        <li class="flex items-center gap-3"><i data-lucide="mail"
+                                class="w-5 h-5 text-violet-500"></i><span>contacto@sigmacita.cl</span></li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="border-t border-slate-800 bg-[#0b1120]">
-            <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+            <div
+                class="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
                 <p>&copy; {% now "Y" %} Centro Sigma cita. Todos los derechos reservados.</p>
                 <div class="flex gap-6 mt-4 md:mt-0">
                     <a href="#" class="hover:text-violet-400 transition-colors">Términos</a>
@@ -401,4 +491,5 @@
         });
     </script>
 </body>
+
 </html>
