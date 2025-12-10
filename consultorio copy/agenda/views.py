@@ -41,9 +41,23 @@ def registrar_paciente(request):
             fecha_nac = request.POST.get('paciente-fecha-nac')
             telefono = request.POST.get('paciente-telefono')
             
+           
             if not es_texto_valido(nombre):
                 messages.error(request, "Error: El nombre solo puede contener letras y espacios.")
                 return redirect('inicio')
+
+           
+            if fecha_nac:
+                fecha_nac_obj = datetime.strptime(fecha_nac, '%Y-%m-%d').date()
+                fecha_hoy = datetime.now().date()
+                
+                if fecha_nac_obj.year < 1900:
+                    messages.error(request, "Error: El año de nacimiento no puede ser menor a 1900.")
+                    return redirect('inicio')
+                
+                if fecha_nac_obj > fecha_hoy:
+                    messages.error(request, "Error: El paciente no puede haber nacido en el futuro.")
+                    return redirect('inicio')
 
             if Paciente.objects.filter(nombre__iexact=nombre).exists():
                 messages.error(request, f"Error: El paciente '{nombre}' ya se encuentra registrado.")
@@ -104,6 +118,7 @@ def agendar_cita(request):
         motivo = request.POST.get("cita-motivo")
         medico_id = request.POST.get("cita-medico-id")
         
+        
         if request.user.is_staff:
             paciente_id = request.POST.get("cita-paciente-id")
         else:
@@ -113,6 +128,7 @@ def agendar_cita(request):
                 messages.error(request, "Tu usuario no tiene un perfil de paciente asociado.")
                 return redirect('inicio')
 
+        
         if not fecha_hora_str:
             messages.error(request, "Debes seleccionar una fecha y hora.")
             return redirect("inicio")
@@ -123,8 +139,8 @@ def agendar_cita(request):
             messages.error(request, "Formato de fecha inválido.")
             return redirect("inicio")
 
+       
         ahora = datetime.now()
-
         if fecha_hora_obj < ahora:
             messages.error(request, "No puedes agendar citas en el pasado.")
             return redirect("inicio")
@@ -132,9 +148,13 @@ def agendar_cita(request):
         hora_cita = fecha_hora_obj.time()
         hora_apertura = time(6, 0)
         hora_cierre = time(20, 0)
-
         if not (hora_apertura <= hora_cita <= hora_cierre):
             messages.error(request, "El consultorio atiende solo de 06:00 AM a 08:00 PM.")
+            return redirect("inicio")
+
+       
+        if Cita.objects.filter(medico_id=medico_id, fecha_hora=fecha_hora_obj).exists():
+            messages.error(request, "Lo sentimos, el médico ya tiene una cita ocupada a esa hora exacta.")
             return redirect("inicio")
 
         try:
@@ -167,7 +187,6 @@ def eliminar_cita(request, id):
     return redirect('inicio')
 
 def editar_cita(request, id):
-   
     try:
         cita = Cita.objects.get(id=id)
     except Cita.DoesNotExist:
@@ -181,7 +200,6 @@ def editar_cita(request, id):
             fecha_hora_str = request.POST.get('cita-fecha')
             motivo = request.POST.get('cita-motivo')
 
-           
             if not fecha_hora_str:
                 messages.error(request, "Debes seleccionar una fecha y hora.")
                 return redirect('editar_cita', id=id)
@@ -192,17 +210,22 @@ def editar_cita(request, id):
                 messages.error(request, "Formato de fecha inválido.")
                 return redirect('editar_cita', id=id)
 
+           
             ahora = datetime.now()
             if fecha_hora_obj < ahora:
                 messages.error(request, "No puedes mover una cita al pasado.")
                 return redirect('editar_cita', id=id)
 
             hora_cita = fecha_hora_obj.time()
-            hora_apertura = time(6, 0)
-            hora_cierre = time(20, 0)
-
-            if not (hora_apertura <= hora_cita <= hora_cierre):
+            if not (time(6, 0) <= hora_cita <= time(20, 0)):
                 messages.error(request, "El consultorio atiende solo de 06:00 AM a 08:00 PM.")
+                return redirect('editar_cita', id=id)
+
+            
+            choque = Cita.objects.filter(medico_id=medico_id, fecha_hora=fecha_hora_obj).exclude(id=id).exists()
+            
+            if choque:
+                messages.error(request, "El médico ya tiene otra cita agendada a esa hora.")
                 return redirect('editar_cita', id=id)
 
             cita.paciente_id = paciente_id
