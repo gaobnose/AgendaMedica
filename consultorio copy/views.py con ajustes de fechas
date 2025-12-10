@@ -1,0 +1,52 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from datetime import date, datetime
+from .models import Cita
+
+@login_required
+def agendar_cita(request):
+    if request.method == "POST":
+        fecha = request.POST.get("fecha")
+        hora = request.POST.get("hora")
+        motivo = request.POST.get("motivo")
+
+        # Convertir fecha string a objeto fecha
+        try:
+            fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
+        except:
+            messages.error(request, "La fecha no es válida.")
+            return redirect("agendar_cita")
+
+        hoy = date.today()
+
+        # Validar que la fecha no sea pasada
+        if fecha_obj < hoy:
+            messages.error(request, "No puedes agendar citas en una fecha pasada.")
+            return redirect("agendar_cita")
+
+        # Validar hora si la cita es hoy
+        try:
+            hora_obj = datetime.strptime(hora, "%H:%M").time()
+        except:
+            messages.error(request, "La hora no es válida.")
+            return redirect("agendar_cita")
+
+        if fecha_obj == hoy:
+            hora_actual = datetime.now().time()
+            if hora_obj < hora_actual:
+                messages.error(request, "La hora no puede ser en el pasado.")
+                return redirect("agendar_cita")
+
+        # Crear la cita si todo está OK
+        Cita.objects.create(
+            usuario=request.user,
+            fecha=fecha,
+            hora=hora,
+            motivo=motivo
+        )
+
+        messages.success(request, "Cita agendada correctamente.")
+        return redirect("agendar_cita")
+
+    return render(request, "agendar_cita.html")
