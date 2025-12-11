@@ -3,22 +3,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from agenda.models import Paciente
+import re
 
 def pagina_login(request):
     if request.method == 'POST':
-        # Obtener usuario y contraseña del HTML
         usuario = request.POST.get('username')
         contra = request.POST.get('password')
         
-        # Verificar si existen en la base de datos
         user = authenticate(request, username=usuario, password=contra)
         
         if user is not None:
-            #  Si existe, iniciar sesión y redirigir a la Agenda
             login(request, user)
-            return redirect('/') # Te lleva a la raíz (agenda)
+            return redirect('/')
         else:
-            #  Si falla, mandar mensaje de error
             messages.error(request, "Usuario o contraseña incorrectos")
     
     return render(request, 'login.html')
@@ -31,30 +28,32 @@ def pagina_registro(request):
         contra1 = request.POST.get('password')
         contra2 = request.POST.get('confirm_password')
 
-        #  Validar que las contraseñas coincidan
+        if len(usuario) < 3:
+            messages.error(request, "El nombre debe tener 3 o más caracteres")
+            return redirect('registro')
+
+        if re.search(r'\d', usuario):
+            messages.error(request, "El nombre no puede contener números")
+            return redirect('registro')
+
         if contra1 != contra2:
             messages.error(request, "Las contraseñas no coinciden")
             return redirect('registro')
 
-        # Validar que el usuario no exista ya
         if User.objects.filter(username=usuario).exists():
             messages.error(request, "El nombre de usuario ya está en uso")
             return redirect('registro')
 
-        # Crear el usuario (Por defecto NO es admin, es paciente)
         try:
-            #Crear el Usuario de Login
             user = User.objects.create_user(username=usuario, email=correo, password=contra1)
             user.save()
             
-            # Crear automáticamente el perfil de Paciente asociado
             Paciente.objects.create(
-                user=user,          # Conectamos con el usuario creado
-                nombre=usuario,     # Usamos el nombre de usuario como nombre inicial
-                telefono=""         # Dejamos vacío para que lo llene después
+                user=user,
+                nombre=usuario,
+                telefono=""
             )
             
-            # 3. Iniciar sesión
             login(request, user)
             return redirect('inicio')
             
@@ -65,5 +64,5 @@ def pagina_registro(request):
     return render(request, 'registro.html')
 
 def cerrar_sesion(request):
-    logout(request) # Borra la sesión del navegador
-    return redirect('login') # Lo manda de vuelta al login azul
+    logout(request)
+    return redirect('login')

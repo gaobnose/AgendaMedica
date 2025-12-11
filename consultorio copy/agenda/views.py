@@ -5,6 +5,10 @@ from django.http import HttpResponse
 from datetime import datetime, time
 from .models import Paciente, Medico, Cita
 import re
+import json
+import urllib.request
+from django.contrib.auth.models import User
+from django.db import IntegrityError
 
 def es_texto_valido(texto):
     if not texto: return False
@@ -255,3 +259,55 @@ def editar_cita(request, id):
         'fecha_formateada': fecha_formato
     }
     return render(request, 'editar_cita.html', contexto)
+
+@login_required
+def generar_usuarios_aleatorios(request):
+    if not request.user.is_staff:
+        messages.error(request, "No tienes permisos para realizar esta acción.")
+        return redirect('inicio')
+
+    if request.method == 'POST':
+        try:
+            
+            url = 'https://randomuser.me/api/?results=1&nat=es'
+            response = urllib.request.urlopen(url)
+            data = json.loads(response.read())
+            
+            usuario_data = data['results'][0]
+            
+            
+            nombre_first = usuario_data['name']['first']
+            nombre_last = usuario_data['name']['last']
+            username = usuario_data['login']['username']
+            password = usuario_data['login']['password']
+            email = usuario_data['email']
+            phone = usuario_data['phone']
+            dob = usuario_data['dob']['date'][:10] # YYYY-MM-DD
+            
+            # Nombre completo para el modelo Paciente
+            nombre_completo = f"{nombre_first} {nombre_last}"
+
+            # Verificar si existe el usurio
+            if User.objects.filter(username=username).exists():
+                
+                import random
+                username = f"{username}{random.randint(100, 999)}"
+            
+            # Crear Usuario Django
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            
+            # Crear Perfil Paciente
+            Paciente.objects.create(
+                user=user,
+                nombre=nombre_completo,
+                fecha_nacimiento=dob,
+                telefono=phone
+            )
+            
+            messages.success(request, f"Usuario generado: {username} (Pass: {password})")
+            
+        except Exception as e:
+            messages.error(request, f"Error al generar usuario: {e}")
+            
+    return redirect('inicio')

@@ -67,8 +67,8 @@
                 <span
                     class="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Paciente</span>
                 {% endif %}
-                <a href="{% url 'logout' %}" class="text-slate-500 hover:text-red-500 transition-colors"><i data-lucide="log-out"
-                        class="w-5 h-5"></i></a>
+                <a href="{% url 'logout' %}" class="text-slate-500 hover:text-red-500 transition-colors"><i
+                        data-lucide="log-out" class="w-5 h-5"></i></a>
             </div>
         </div>
     </nav>
@@ -222,6 +222,7 @@
                                     </td>
                                     <td class="p-4 text-blue-600 font-medium">Dr. {{ c.medico.nombre }}</td>
                                     <td class="p-4 text-slate-500">{{ c.motivo }}</td>
+                                    <td class="p-4 text-slate-500">{{ c.motivo }}</td>
                                     {% if user.is_staff %}
                                     <td class="p-4 text-right">
                                         <a href="{% url 'editar_cita' c.id %}"
@@ -276,10 +277,30 @@
                             </form>
                         </div>
                     </div>
+                    <div
+                        class="mt-8 bg-violet-50/50 p-6 rounded-3xl border border-violet-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800">Generador de Usuarios</h3>
+                            <p class="text-xs text-slate-500 mt-1">Crea usuarios de prueba automáticamente con
+                                RandomUser
+                            </p>
+                        </div>
+                        <form method="POST" action="{% url 'generar_usuarios' %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="px-6 py-3 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 shadow-lg shadow-violet-200 transition-all flex items-center gap-2">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                Generar Usuario
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                {% endif %}
+
 
             </div>
+            {% endif %}
+
+        </div>
         </div>
     </main>
 
