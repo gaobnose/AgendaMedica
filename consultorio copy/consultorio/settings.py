@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': 'AgendaMedicaDB',
         'USER': 'test',
         'PASSWORD': '12345',
-        'HOST': r'localhost', # La 'r' al inicio es importante por la barra invertida
+        'HOST': r'DESKTOP-NBTECF8\MARTIN', # La 'r' al inicio es importante por la barra invertida
         'PORT': '',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
